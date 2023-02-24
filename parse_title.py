@@ -1,10 +1,11 @@
-from typing import NamedTuple
-import urllib.request
+import json
 import re
+import urllib.request
+from typing import NamedTuple
+
+import jmespath  # type: ignore
 
 from headers import parse_title_headers
-import jmespath  # type: ignore
-import json
 
 
 class Chapter(NamedTuple):

@@ -1,10 +1,12 @@
 import argparse
 import json
+import sys
+from pathlib import Path
+
+import pyperclip
+
 import parse_chapter
 import parse_title
-from pathlib import Path
-import sys
-import pyperclip
 
 
 class MyParser(argparse.ArgumentParser):

@@ -1,15 +1,15 @@
 import asyncio
-from pathlib import Path
 import re
+import sys
+from pathlib import Path
 from typing import NamedTuple
-import aiofiles  # type: ignore
 
+import aiofiles  # type: ignore
 import aiohttp
 import jmespath  # type: ignore
 
 import headers
 from config import config
-import sys
 
 __all__ = ['get_chapter', 'ImageDownloader']
 
