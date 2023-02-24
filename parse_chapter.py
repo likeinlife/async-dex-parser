@@ -10,8 +10,10 @@ import jmespath  # type: ignore
 import headers
 from config import config
 
+__all__ = ['get_chapter', 'ImageDownloader']
 
-def get_parser(chapter_id: str | list[str]):
+
+def get_chapter(chapter_id: str | list[str]):
     if isinstance(chapter_id, str):
         return SingleParser(chapter_id)
     elif isinstance(chapter_id, list):
@@ -72,6 +74,9 @@ class SingleParser:
 
         parsed_json = jmespath.search("data.attributes.[chapter, title, translatedLanguage, pages]", json_response)
         return Chapter(self._chapter_id, *parsed_json)
+
+    def __repr__(self) -> str:
+        return f'Айди - {self.chapter_info.id} | Страниц - {self.chapter_info.pages}'
 
 
 class MassParser(SingleParser):
