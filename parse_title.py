@@ -1,9 +1,10 @@
 from typing import NamedTuple
-import requests  # type: ignore
+import urllib.request
 import re
 
 from headers import parse_title_headers
 import jmespath  # type: ignore
+import json
 
 
 class Chapter(NamedTuple):
@@ -40,12 +41,13 @@ class ParseTitle:
         self.__chapters: list[Chapter] = self.parseJson(self.__json)
 
     def getJsonWithChapters(self, title_id: str, offset: int = 0):
-        json_response = requests.get(
-            f'https://api.mangadex.org/manga/{title_id}'\
+        req = urllib.request.Request(f'https://api.mangadex.org/manga/{title_id}'\
             f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'\
             f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'\
-            f'contentRating[]=erotica&contentRating[]=pornographic',
-            headers=parse_title_headers).json()
+            f'contentRating[]=erotica&contentRating[]=pornographic')
+        for key, value in parse_title_headers.items():
+            req.add_header(key, value)
+        json_response = json.load(urllib.request.urlopen(req))
 
         content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
