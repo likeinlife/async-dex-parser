@@ -5,7 +5,7 @@ Installing:
 - `git clone https://github.com/likeinlife/async-dex-parser.git`
 - `python -m venv venv`  # virtual environment creating
 - Windows:
-  - `venv\Scripts\activate`  # Make sure powershell scenarios are enabled. `Set-ExecutionPolicy RemoveSigned`
+  - `venv\Scripts\activate`  # Make sure scenarios are enabled. `Set-ExecutionPolicy RemoveSigned`
 - Linux:
   - TODO
 - `pip install -r requirements.txt`  # installing modules
