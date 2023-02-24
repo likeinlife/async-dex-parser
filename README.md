@@ -20,6 +20,10 @@ positional arguments:
 | title | Title info
 | fav | Actions with favourite list
 
+| Command | Description |
+| --- | --- |
+| git status | List all new or modified files |
+| git diff | Show file differences that haven't been staged |
 options:
   -h, --help           show this help message and exit
   
