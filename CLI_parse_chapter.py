@@ -35,9 +35,14 @@ def get_chapter_info(args: argparse.Namespace):
 
 def get_title_info(args: argparse.Namespace):
     title = parse_title.get_title(args.id)
-    chapters = list(filter(lambda x: x.lang == args.language, title.chapters))
+    if args.language == 'any':
+        chapters = title.chapters
+    else:
+        chapters = list(filter(lambda x: x.lang == args.language, title.chapters))
+    print(f'{"num": >3} | {"ch": ^5} | {"lang": ^6} | Id')
+    print(f'{"---": >3} | {"---": ^5} | {"---": ^6} | ---')
     for number, chapter in enumerate(chapters):
-        print(f'{number: >3} | {chapter.chapter: ^5} | {chapter.lang} | {chapter.id}')
+        print(f'{number: >3} | {chapter.chapter: ^5} | {chapter.lang: ^6} | {chapter.id}')
     copy = input('copy? y/n ')
     if copy == 'n':
         return
