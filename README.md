@@ -10,22 +10,19 @@ Installing:
   - TODO
 - `pip install -r requirements.txt`  # installing modules
 
-Usage: python.exe CLI_parse_chapter.py [-h] {chapter,title,fav} ...
+```
+usage: CLI_parse_chapter.py [-h] {chapter,title,fav} ...
 
 positional arguments:
-
   {chapter,title,fav}
-  
-| Action | Description |
-| --- | --- |
-| chapter | Download chapter by its id |
-| title | Title info |
-| fav | Actions with favourite list |
+    chapter            Download chapter by its id
+    title              Title info
+    fav                Actions with favourite list
 
 options:
   -h, --help           show this help message and exit
-  
-  Tip to easy use:
+```
+Tip to easy use:
   Make .bat file with content:
   ```bat
   @C:\...\async-dex-parser\env\Scripts\python.exe C:\...\async-dex-parser\CLI_parse_chapter.py %*
