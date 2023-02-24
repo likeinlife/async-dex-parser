@@ -13,9 +13,13 @@ Installing:
 Usage: python.exe CLI_parse_chapter.py [-h] {chapter,title,fav} ...
 
 positional arguments:
+
   {chapter,title,fav}
+  
     chapter            Download chapter by its id
+    
     title              Title info
+    
     fav                Actions with favourite list
 
 options:
