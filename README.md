@@ -21,6 +21,7 @@ positional arguments:
 | chapter | Download chapter by its id |
 | title | Title info |
 | fav | Actions with favourite list |
+
 options:
   -h, --help           show this help message and exit
   
