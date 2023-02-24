@@ -71,6 +71,9 @@ class ParseTitle:
     def chapters(self):
         return self.__chapters
 
+    def __repr__(self) -> str:
+        return f'{self.__id}'
+
 
 if __name__ == '__main__':
     a = get_title(
