@@ -1,5 +1,4 @@
 import asyncio
-from asyncio.windows_events import ERROR_CONNECTION_ABORTED
 from pathlib import Path
 import re
 from typing import NamedTuple
