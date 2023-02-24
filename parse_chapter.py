@@ -1,4 +1,5 @@
 import asyncio
+from asyncio.windows_events import ERROR_CONNECTION_ABORTED
 from pathlib import Path
 import re
 from typing import NamedTuple
@@ -9,6 +10,7 @@ import jmespath  # type: ignore
 
 import headers
 from config import config
+import sys
 
 __all__ = ['get_chapter', 'ImageDownloader']
 
@@ -50,15 +52,20 @@ class SingleParser:
 
     async def _getPages(self) -> list:
         async with aiohttp.ClientSession() as session:
-            response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}',
-                                         params=headers.parse_chapter_params,
-                                         headers=headers.parse_chapter_headers)
-        json_response = await response.json()
-        image_names = jmespath.search("chapter.data[*]", json_response)
-        base_url = json_response['baseUrl']
-        ch_hash = json_response['chapter']['hash']
-        image_urls = list(map(lambda x: self.makeURLFromImageName(base_url, ch_hash, x), image_names))
-        return image_urls
+            try:
+                response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}',
+                                             params=headers.parse_chapter_params,
+                                             headers=headers.parse_chapter_headers)
+                json_response = await response.json()
+                image_names = jmespath.search("chapter.data[*]", json_response)
+                base_url = json_response['baseUrl']
+                ch_hash = json_response['chapter']['hash']
+                image_urls = list(map(lambda x: self.makeURLFromImageName(base_url, ch_hash, x), image_names))
+                return image_urls
+            except KeyError:
+                raise KeyError('There is no baseUrl key in json response. Maybe you accidently typed title_id?')
+            except Exception as e:
+                raise Exception(f'{e}. Somethig went wrong')
 
     def makeURLFromImageName(self, base_url, ch_hash, image_name: str) -> str:
         return f'{base_url}/data/{ch_hash}/{image_name}'
