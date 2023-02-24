@@ -63,8 +63,8 @@ def parse_args():
 
     favs = subparsers.add_parser('fav', help='Actions with favourite list')
     favs.add_argument('action', choices=('list', 'add', 'del'))
-    favs.add_argument('--select-item', '-si', type=int, help='Выбор значения. Исп. в обновлении и удалении')
-    favs.add_argument('--item', '-i', type=int, help='Добавление значения. Исп. в добавлении, обновлении')
+    favs.add_argument('--id', '-id', help='Title id')
+    favs.add_argument('--title', '-t', help='Title name')
     favs.set_defaults(func=FavouriteList())
 
     args = parser.parse_args()
@@ -125,6 +125,8 @@ class FavouriteList:
 
         with open(self.BASEPATH, 'w') as file_obj:
             json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+
+        print(f'Add {args.title}')
 
     def delete(self, args):
         with open(self.BASEPATH, 'r') as file_obj:
