@@ -4,6 +4,7 @@ import parse_chapter
 import parse_title
 from pathlib import Path
 import sys
+import pyperclip
 
 
 class MyParser(argparse.ArgumentParser):
@@ -33,10 +34,16 @@ def get_chapter_info(args: argparse.Namespace):
 def get_title_info(args: argparse.Namespace):
     title = parse_title.get_title(args.id)
     chapters = filter(lambda x: x.lang == args.language, title.chapters)
-    print(title)
     for number, chapter in enumerate(chapters):
         if chapter.lang == args.language:
-            print(f'{number: >3} | {chapter.chapter: ^5} | {chapter.lang}')
+            print(f'{number: >3} | {chapter.chapter: ^5} | {chapter.lang} | {chapter.id}')
+    copy = input('copy? y/n ')
+    if copy == 'n':
+        return
+    chapter_number = int(input('chapter number? >> '))
+    for number, chapter in enumerate(chapters):
+        if number == chapter_number:
+            pyperclip.copy(chapter.id)
 
 
 def parse_args():
@@ -92,13 +99,19 @@ class FavouriteList:
     def list(self, _):
         if self.checkFavListIsEmpty():
             return
-        with open(self.BASEPATH, 'r', encoding='UTF-8') as file_obj:
+        with open(self.BASEPATH, 'r') as file_obj:
             favs = json.load(file_obj)
 
-            for number, (title, title_id) in enumerate(favs):
-                print(f'{number: >3} | {title: ^5} | {title_id}')
+        for number, (title_id, title_name) in enumerate(favs.items()):
+            print(f'{number: >3} | {title_id} | {title_name}')
 
-        return favs
+        copy = input('Copy? y/n ')
+        if copy == 'n':
+            return
+        chapter_number = int(input('chapter number? >> '))
+        for number, (title_id, title_name) in enumerate(favs.items()):
+            if number == chapter_number:
+                pyperclip.copy(title_id)
 
     def add(self, args):
         title = {args.title: args.id}
