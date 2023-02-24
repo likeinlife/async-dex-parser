@@ -1,14 +1,14 @@
 import asyncio
 from pathlib import Path
 import re
-from time import time
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 import aiofiles  # type: ignore
 
 import aiohttp
 import jmespath  # type: ignore
 
 import headers
+from config import config
 
 
 def get_parser(chapter_id: str | list[str]):
@@ -53,13 +53,13 @@ class SingleParser:
                                          headers=headers.parse_chapter_headers)
         json_response = await response.json()
         image_names = jmespath.search("chapter.data[*]", json_response)
+        base_url = json_response['baseUrl']
         ch_hash = json_response['chapter']['hash']
-        image_urls = list(map(lambda x: self.makeURLFromImageName(ch_hash, x), image_names))
+        image_urls = list(map(lambda x: self.makeURLFromImageName(base_url, ch_hash, x), image_names))
         return image_urls
 
-    def makeURLFromImageName(self, ch_hash, image_name: str) -> str:
-        BASE = 'https://uploads.mangadex.org/data'
-        return f'{BASE}/{ch_hash}/{image_name}'
+    def makeURLFromImageName(self, base_url, ch_hash, image_name: str) -> str:
+        return f'{base_url}/data/{ch_hash}/{image_name}'
 
     async def _getChapter(self) -> Chapter:
         async with aiohttp.ClientSession() as session:
@@ -94,6 +94,7 @@ class ImageDownloader:
 
         self.chapter = chapter
         self.makeDir()
+        self.override = False
 
         asyncio.run(self.downloadAllImages())
 
@@ -101,9 +102,10 @@ class ImageDownloader:
         if not self.path_to_dir.exists():
             self.path_to_dir.mkdir()
 
-    @staticmethod
-    def checkOverride(file: Path):
+    def checkOverride(self, file: Path):
         """Checks if already exists"""
+        if self.override:
+            return
         table = {'y': True, 'n': False}
         if file.exists():
             override = input('Файл уже существует. Перезаписать? y/n ')
@@ -133,7 +135,7 @@ class ImageDownloader:
         print(f'Downloaded p{page_number}')
 
     async def downloadAllImages(self) -> None:
-        semaphore = asyncio.Semaphore(3)
+        semaphore = asyncio.Semaphore(config.SEMAPHORE)
         async with aiohttp.ClientSession() as session:
             tasks = [
                 asyncio.create_task(self.downloadImage(semaphore, session, image_url, number))
