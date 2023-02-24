@@ -31,9 +31,6 @@ def get_title(url_or_id: str):
 
 
 class ParseTitle:
-    """
-    Парсит айди или url тайтла на дексе. С доступа к спарсенных главам используется chapters
-    """
 
     def __init__(self, title_id):
         self.__id = title_id
@@ -76,11 +73,3 @@ class ParseTitle:
     def __repr__(self) -> str:
         return f'{self.__id}'
 
-
-if __name__ == '__main__':
-    a = get_title(
-        'https://mangadex.org/title/edb82d3c-20f6-4cf9-a879-7457478642fe/my-lovey-dovey-wife-is-a-stone-cold-killer')
-
-    b = get_title('edb82d3c-20f6-4cf9-a879-7457478642fe')
-    print(a.chapters)
-    print(b.chapters)
