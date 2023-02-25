@@ -32,9 +32,36 @@ def get_title(url_or_id: str):
         raise Exception('Incorrect entry value')
 
 
+class ParseTitleName:
+
+    def __init__(self, name: str) -> None:
+        self._chapter_ids = self.getJsonWithTitles(name)
+
+    def getJsonWithTitles(self, name: str, offset: int = 0):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        req = urllib.request.Request(
+            f'https://api.mangadex.org/manga?title={name}&limit=5&contentRating[]=safe&'
+            f'contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&order[relevance]=desc')
+        for key, value in parse_title_headers.items():
+            req.add_header(key, value)
+
+        json_response = json.load(urllib.request.urlopen(req, context=ctx))
+
+        content = jmespath.search('data[].{id:id, title: attributes.title.en}', json_response)
+        total, limit = json_response.get('total'), json_response.get('limit')
+
+        if total > limit and offset + limit < total:
+            content.extend(self.getJsonWithTitles(name, offset + limit))
+
+        return content
+
+
 class ParseTitle:
 
-    def __init__(self, title_id):
+    def __init__(self, title_id) -> None:
         self.__id = title_id
         self.__json = self.getJsonWithChapters(self.__id)
         self.__chapters: list[Chapter] = self.parseJson(self.__json)
