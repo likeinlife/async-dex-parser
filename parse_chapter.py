@@ -95,7 +95,7 @@ class ImageDownloader:
             self.path_to_dir = directory / folder_name
         else:
             if title := chapter.chapter_info.title:
-                folder_name = f'{chapter.chapter_info.chapter_number} - {title}'
+                folder_name = f'{chapter.chapter_info.chapter_number} - {self.cleanName(title)}'
             else:
                 folder_name = f'{chapter.chapter_info.chapter_number}'
             self.path_to_dir = directory / folder_name
@@ -105,6 +105,10 @@ class ImageDownloader:
         self.override = False
 
         asyncio.run(self.downloadAllImages())
+
+    @staticmethod
+    def cleanName(name: str):
+        return re.sub(r'[;<>|/\:"]', '', name)
 
     def makeDir(self):
         if not self.path_to_dir.exists():
@@ -118,6 +122,7 @@ class ImageDownloader:
         if file.exists():
             override = input('Файл уже существует. Перезаписать? y/n ')
             if table.get(override):
+                self.override = True
                 return
             exit('Отменено.')
 
