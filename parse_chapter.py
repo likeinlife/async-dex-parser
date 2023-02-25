@@ -6,9 +6,11 @@ from typing import NamedTuple
 import aiofiles  # type: ignore
 import aiohttp
 import jmespath  # type: ignore
+import tqdm.asyncio
 
 import headers
 from config import config
+import time
 
 
 def get_chapter(chapter_id: str | list[str]):
@@ -136,22 +138,30 @@ class ImageDownloader:
         async with aiofiles.open(path_to_file, 'wb') as file_obj:
             await file_obj.write(content)
 
-    async def downloadImage(self, semaphore: asyncio.Semaphore, session: aiohttp.ClientSession, image_url: str,
-                            page_number: int):
-        await semaphore.acquire()
-        file_name = str(page_number).rjust(3, "0") + '.png'
-        path_to_file = self.path_to_dir / file_name
-        self.checkOverride(path_to_file)
-        content = await self.getImage(session, image_url)
-        semaphore.release()
+    async def downloadImage(self, semaphore: asyncio.Semaphore, image_url: str, page_number: int):
+        async with semaphore:
+            this_try = 0
+            file_name = str(page_number).rjust(3, "0") + '.png'
+            path_to_file = self.path_to_dir / file_name
+            self.checkOverride(path_to_file)
+            while True:
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        content = await self.getImage(session, image_url)
+                        break
+                except aiohttp.ServerDisconnectedError:
+                    print('Sever disconnected. Continue in 5 sec...')
+                    this_try += 1
+                    time.sleep(config.SLEEP_BEFORE_RECONNECTION)
+                    if this_try >= config.TRIES_NUMBER:
+                        raise aiohttp.ServerConnectionError(
+                            'Server is dead. Try discrease semaphore in config and get a chance in a few minutes')
         await self.saveImage(content, path_to_file)
-        print(f'Downloaded p{page_number}')
 
     async def downloadAllImages(self) -> None:
         semaphore = asyncio.Semaphore(config.SEMAPHORE)
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                asyncio.create_task(self.downloadImage(semaphore, session, image_url, number))
-                for number, image_url in enumerate(self.chapter.pages_urls)
-            ]
-            await asyncio.wait(tasks)
+        tasks = [
+            asyncio.create_task(self.downloadImage(semaphore, image_url, number))
+            for number, image_url in enumerate(self.chapter.pages_urls)
+        ]
+        [await f for f in tqdm.asyncio.tqdm.as_completed(tasks)]
