@@ -1,6 +1,5 @@
 import asyncio
 import re
-import sys
 from pathlib import Path
 from typing import NamedTuple
 
@@ -10,8 +9,6 @@ import jmespath  # type: ignore
 
 import headers
 from config import config
-
-__all__ = ['get_chapter', 'ImageDownloader']
 
 
 def get_chapter(chapter_id: str | list[str]):
