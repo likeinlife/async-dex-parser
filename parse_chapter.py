@@ -69,7 +69,7 @@ class SingleParser:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
     async def _getChapter(self) -> Chapter:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
             response = await session.get(
                 f'https://api.mangadex.org/chapter/{self._chapter_id}'\
                 f'?includes/[]=scanlation_group&includes[]=manga&includes[]=user',
