@@ -1,4 +1,5 @@
 import json
+import ssl
 import re
 import urllib.request
 from typing import NamedTuple
@@ -39,13 +40,19 @@ class ParseTitle:
         self.__chapters: list[Chapter] = self.parseJson(self.__json)
 
     def getJsonWithChapters(self, title_id: str, offset: int = 0):
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         req = urllib.request.Request(f'https://api.mangadex.org/manga/{title_id}'\
             f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'\
             f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'\
             f'contentRating[]=erotica&contentRating[]=pornographic')
         for key, value in parse_title_headers.items():
             req.add_header(key, value)
-        json_response = json.load(urllib.request.urlopen(req))
+
+        json_response = json.load(urllib.request.urlopen(req, context=ctx))
 
         content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
@@ -73,4 +80,3 @@ class ParseTitle:
 
     def __repr__(self) -> str:
         return f'{self.__id}'
-
