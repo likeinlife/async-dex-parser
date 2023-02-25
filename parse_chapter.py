@@ -49,7 +49,7 @@ class SingleParser:
         return clear_id.group(1)
 
     async def _getPages(self) -> list:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
             try:
                 response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}',
                                              params=headers.parse_chapter_params,
