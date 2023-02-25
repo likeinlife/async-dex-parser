@@ -110,7 +110,7 @@ class ImageDownloader:
 
     @staticmethod
     def cleanName(name: str):
-        return re.sub(r'[;<>|/\:"]', '', name)
+        return re.sub(r'[;<>|/\:"?]', '', name)
 
     def makeDir(self):
         if not self.path_to_dir.exists():
