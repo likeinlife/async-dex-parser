@@ -78,7 +78,8 @@ def choose_title(title: parse_title.ParseTitle | parse_title.ParseTitleName) -> 
 
 
 def get_title_info(args: argparse.Namespace):
-    title = parse_title.get_title(args.id)
+    identificator = " ".join(args.id)
+    title = parse_title.get_title(identificator)
     title = choose_title(title)
 
     if args.language == 'any':
@@ -127,7 +128,7 @@ def parse_args():
     chapter.set_defaults(func=get_chapter_info)
 
     title = subparsers.add_parser('title', help='Title info')
-    title.add_argument('id', type=str, help='Title id or url or name')
+    title.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)
     title.add_argument('--language', '-l', help='Language', default='en', choices=('ru', 'en', 'any'))
     title.add_argument('--mass',
                        '-m',
