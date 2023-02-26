@@ -36,6 +36,9 @@ def get_chapter_info(args: argparse.Namespace):
 
 
 def print_chapters(chapters: list[parse_title.Chapter]):
+    if len(chapters) == 0:
+        print('There are no chapters')
+        return
     for number, chapter in enumerate(chapters):
         print(f'| {number: >3} | {chapter.chapter: ^6} | {chapter.lang: ^6} | {chapter.id} |')
     print(f'  {"-" * 58: ^60} ')
@@ -57,7 +60,7 @@ def choose_title(title: parse_title.ParseTitle | parse_title.ParseTitleName) -> 
     else:
         print('There are more than 1 title found by this name')
         print(f'| {"num": ^3} | {"name": ^30} | {"id": ^36} |')
-        print(f'| {"-" * 72: ^75} |')
+        print(f'| {"---": ^3} | {"-" * 30: ^30} | {"-" * 36: ^36} |')
         for number, this_title in enumerate(title.titles):
             title_name = textwrap.shorten(this_title['title'], 30)
             print(f'| {number: ^3} | {title_name: ^30} | {this_title["id"]: ^36} |')
@@ -83,6 +86,9 @@ def get_title_info(args: argparse.Namespace):
     if args.mass:
         title_mass_download(title, args)
     else:
+        if len(chapters) == 0:
+            print(f'There are no chapters with {args.language}. Try `-l any`')
+            return
         print_beauty_table_begin(title)
         print_chapters(chapters)
 
