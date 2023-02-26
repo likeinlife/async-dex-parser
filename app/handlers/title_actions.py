@@ -43,7 +43,7 @@ def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -
         print('There are more than 1 title found by this name')
         headers = ('name', 'id')
         content = ((textwrap.shorten(title['title'], 30), title['id']) for title in title.titles)
-        print(tabulate.tabulate(content, headers=headers, tablefmt='rounded_outline', showindex='always'))
+        print(tabulate.tabulate(content, headers=headers, stralign='center', tablefmt='rounded_outline', showindex='always'))
         while True:
             choosen_number = input('title number? >> ')
             if not choosen_number.isnumeric():
