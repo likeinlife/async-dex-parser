@@ -7,6 +7,7 @@ app/__pycache__/
 app/chapter_parser/__pycache__/
 app/title_parser/__pycache__/
 app/handlers/__pycache__/
+build/
 
 
 
