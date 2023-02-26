@@ -1,7 +1,8 @@
 from app import title_parser
 import textwrap
-import pyperclip
+import pyperclip  # type: ignore
 import argparse
+import tabulate  # type: ignore
 
 table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
@@ -10,42 +11,45 @@ def print_chapters(chapters: list[title_parser.Chapter]):
     if len(chapters) == 0:
         print('There are no chapters')
         return
-    for number, chapter in enumerate(chapters):
-        print(f'| {number: >3} | {chapter.chapter: ^6} | {chapter.lang: ^6} | {chapter.id} |')
-    print(f'  {"-" * 58: ^60} ')
-    copy = input('copy? y/n ')
-    if copy == 'n':
+
+    headers = ('chapter', 'language', 'id')
+    content = ((chapter.chapter, chapter.lang, chapter.id) for chapter in chapters)
+
+    print(
+        tabulate.tabulate(content,
+                          headers=headers,
+                          tablefmt='rounded_outline',
+                          stralign='center',
+                          numalign='right',
+                          showindex='always'))
+
+    copy = input('copy? y/n >> ')
+    if not table.get(copy):
         return
     while True:
         choosen_number = input('chapter number? >> ')
         if not choosen_number.isnumeric():
             exit('Stopping')
-        for number, chapter in enumerate(chapters):
-            if number == int(choosen_number):
-                return pyperclip.copy(chapter.id)
+        return pyperclip.copy(chapters[int(choosen_number)].id)
 
 
 def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -> title_parser.ParseTitle:
     if isinstance(title, title_parser.ParseTitle):
         return title
     else:
-        if len(title.titles) == 1:
+        if (titles_count := len(title.titles)) == 1:
             return title_parser.ParseTitle(title.titles[0]['id'])
         print('There are more than 1 title found by this name')
-        print(f'| {"num": ^3} | {"name": ^30} | {"id": ^36} |')
-        print(f'| {"---": ^3} | {"-" * 30: ^30} | {"-" * 36: ^36} |')
-        for number, this_title in enumerate(title.titles):
-            title_name = textwrap.shorten(this_title['title'], 30)
-            print(f'| {number: ^3} | {title_name: ^30} | {this_title["id"]: ^36} |')
-        print(f'  {"-" * 72: ^75}  ')
+        headers = ('name', 'id')
+        content = ((textwrap.shorten(title['title'], 30), title['id']) for title in title.titles)
+        print(tabulate.tabulate(content, headers=headers, tablefmt='rounded_outline', showindex='always'))
         while True:
             choosen_number = input('title number? >> ')
             if not choosen_number.isnumeric():
                 exit('Stopping')
-            for number, this_title in enumerate(title.titles):
-                if number == int(choosen_number):
-                    return title_parser.ParseTitle(this_title['id'])
-            print('There is no number. Try again')
+            if int(choosen_number) <= titles_count - 1:
+                return title_parser.ParseTitle(title.titles[int(choosen_number)]['id'])
+            print('There is no title with that number')
 
 
 def get_title_info(args: argparse.Namespace):
@@ -63,20 +67,8 @@ def get_title_info(args: argparse.Namespace):
         if len(chapters) == 0:
             print(f'There are no chapters with {args.language}. Try `-l any`')
             return
-        print_beauty_table_begin(title)
+        print(f'{title.title_name: ^65}')
         print_chapters(chapters)
-
-
-def print_beauty_table_begin(title):
-    if (title_length := len(title.title_name)) > 55:
-        parts_number = title_length // 55 + 1
-        for part in range(parts_number):
-            print(f'| {title.title_name[part*54: part*54 + 54]: ^60} |')
-    else:
-        print(f'| {title.title_name: ^60} |')
-    print(f'| {"-" * 58: ^60} |')
-    print(f'| {"num": >3} | {"ch": ^6} | {"lang": ^6} | {"id": ^36} |')
-    print(f'| {"---": >3} | {"--": ^6} | {"----": ^6} | {"-"*34: ^36} |')
 
 
 def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):

@@ -6,13 +6,11 @@ from typing import NamedTuple
 import aiofiles  # type: ignore
 import aiohttp
 import jmespath  # type: ignore
-import tqdm.asyncio
+import tqdm.asyncio  # type: ignore
 
 from .. import headers
 from ..config import config
 import time
-
-
 
 
 class Chapter(NamedTuple):
