@@ -5,13 +5,13 @@ You can:
 2. See manga's chapters by their id, url or name
 3. Add manga to favourite list
 # Installing:
-- `git clone https://github.com/likeinlife/async-dex-parser.git`
-- `python -m venv venv`  # virtual environment creating
+1. `git clone https://github.com/likeinlife/async-dex-parser.git`
+2. `python -m venv venv`  # virtual environment creating. You can skip this, but modules will install in global scope.
 - Windows:
   - `venv\Scripts\activate`  # Make sure scenarios are enabled. `Set-ExecutionPolicy RemoveSigned`
 - Linux:
   - TODO
-- `pip install <your path here>`  # installing modules
+3. `pip install <your path here>`  # installing modules
 
 # Usage
 ```
