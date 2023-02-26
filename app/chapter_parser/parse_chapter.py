@@ -1,12 +1,14 @@
 import asyncio
 import re
 from pathlib import Path
+import textwrap
 from typing import NamedTuple
 
-import aiofiles  # type: ignore
+import aiofiles # type: ignore
 import aiohttp
 import jmespath  # type: ignore
 import tqdm.asyncio  # type: ignore
+from tabulate import tabulate  # type: ignore
 
 from .. import headers
 from ..config import config
@@ -15,8 +17,9 @@ import time
 
 class Chapter(NamedTuple):
     id: str
+    manga_title: str
     chapter_number: str
-    title: str
+    name: str
     lan: str
     pages: int
 
@@ -69,10 +72,17 @@ class SingleParser:
         json_response = await response.json()
 
         parsed_json = jmespath.search("data.attributes.[chapter, title, translatedLanguage, pages]", json_response)
-        return Chapter(self._chapter_id, *parsed_json)
+        title_name = jmespath.search("data.relationships[?type=='manga'].attributes.title.* | [0] | [0]", json_response)
+        return Chapter(self._chapter_id, title_name, *parsed_json)
 
     def __repr__(self) -> str:
-        return f'Айди - {self.chapter_info.id} | Страниц - {self.chapter_info.pages}'
+        headers = ('manga name', 'chapter name', 'id', 'pages')
+        manga_name = textwrap.shorten(self.chapter_info.manga_title, 30)
+        chapter_name = textwrap.shorten(self.chapter_info.name, 30)
+
+        content = ((manga_name, chapter_name, self.chapter_info.id, self.chapter_info.pages),)
+        table = tabulate(content, headers=headers, stralign='center', tablefmt='rounded_outline')
+        return table
 
 
 class MassParser(SingleParser):
@@ -87,7 +97,7 @@ class ImageDownloader:
         if folder_name:
             self.path_to_dir = directory / folder_name
         else:
-            if title := chapter.chapter_info.title:
+            if title := chapter.chapter_info.name:
                 folder_name = f'{chapter.chapter_info.chapter_number} - {self.cleanName(title)}'
             else:
                 folder_name = f'{chapter.chapter_info.chapter_number}'

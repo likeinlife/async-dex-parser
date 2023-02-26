@@ -30,7 +30,7 @@ def parse_args():
     chapter.add_argument('id', type=str, help='Chapter id or url')
     chapter.add_argument('--directory', '-d', help='Directory to save', default=Path())
     chapter.add_argument('--folder_name', '-n', help='Folder to save', default="")
-    chapter.set_defaults(func=chapter_actions.get_chapter_info)
+    chapter.set_defaults(func=chapter_actions.get_chapter)
 
     title = subparsers.add_parser('title', help='Title info')
     title.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)

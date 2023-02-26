@@ -1,13 +1,14 @@
 from app import title_parser
 import textwrap
-import pyperclip  # type: ignore
 import argparse
 import tabulate  # type: ignore
+
+from .chapter_actions import get_chapter
 
 table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
 
-def print_chapters(chapters: list[title_parser.Chapter]):
+def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespace):
     if len(chapters) == 0:
         print('There are no chapters')
         return
@@ -30,7 +31,7 @@ def print_chapters(chapters: list[title_parser.Chapter]):
         choosen_number = input('chapter number? >> ')
         if not choosen_number.isnumeric():
             exit('Stopping')
-        return pyperclip.copy(chapters[int(choosen_number)].id)
+        return get_chapter(args, (chapters[int(choosen_number)].id))
 
 
 def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -> title_parser.ParseTitle:
@@ -68,7 +69,7 @@ def get_title_info(args: argparse.Namespace):
             print(f'There are no chapters with {args.language}. Try `-l any`')
             return
         print(f'{title.title_name: ^65}')
-        print_chapters(chapters)
+        print_chapters(chapters, args)
 
 
 def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):
