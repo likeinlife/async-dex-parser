@@ -58,6 +58,8 @@ def choose_title(title: parse_title.ParseTitle | parse_title.ParseTitleName) -> 
     if isinstance(title, parse_title.ParseTitle):
         return title
     else:
+        if len(title.titles) == 1:
+            return parse_title.ParseTitle(title.titles[0]['id'])
         print('There are more than 1 title found by this name')
         print(f'| {"num": ^3} | {"name": ^30} | {"id": ^36} |')
         print(f'| {"---": ^3} | {"-" * 30: ^30} | {"-" * 36: ^36} |')

@@ -50,6 +50,7 @@ class ParseTitleName:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
+        name = name.replace(' ', '%20')
 
         req = urllib.request.Request(
             f'https://api.mangadex.org/manga?title={name}&limit=5&contentRating[]=safe&'
