@@ -20,7 +20,9 @@ class MyParser(argparse.ArgumentParser):
 
 
 def parse_args():
-    parser = MyParser()
+    prog = 'parser'
+    description = 'MangaDex parser for titles and chapters.'
+    parser = MyParser(prog=prog, description=description)
 
     subparsers = parser.add_subparsers()
 
