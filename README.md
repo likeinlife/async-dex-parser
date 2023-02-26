@@ -15,7 +15,7 @@ You can:
 
 # Usage
 ```
-usage: CLI_parse_chapter.py [-h] {chapter,title,fav} ...
+usage: parser [-h] {chapter,title,fav} ...
 
 positional arguments:
   {chapter,title,fav}
