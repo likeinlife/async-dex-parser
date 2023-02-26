@@ -8,18 +8,11 @@ import aiohttp
 import jmespath  # type: ignore
 import tqdm.asyncio
 
-import headers
-from config import config
+from .. import headers
+from ..config import config
 import time
 
 
-def get_chapter(chapter_id: str | list[str]):
-    if isinstance(chapter_id, str):
-        return SingleParser(chapter_id)
-    elif isinstance(chapter_id, list):
-        return MassParser(chapter_id)
-    else:
-        raise Exception('chapter_id not a list[str] or str')
 
 
 class Chapter(NamedTuple):

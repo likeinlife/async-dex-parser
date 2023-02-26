@@ -1,14 +1,13 @@
 import json
 import ssl
-import re
 import textwrap
 import urllib.request
 from typing import NamedTuple
 
 import jmespath  # type: ignore
 
-from headers import parse_title_headers
-from parse_chapter import get_chapter, ImageDownloader
+from ..headers import parse_title_headers
+from ..chapter_parser import get_chapter, ImageDownloader
 from pathlib import Path
 
 
@@ -17,22 +16,6 @@ class Chapter(NamedTuple):
     chapter: str
     lang: str
     pages: int
-
-
-def get_title(title_identificator: str):
-
-    def __get_id_from_url(url: str) -> str | bool:
-        clear_id = re.match(r'https://mangadex.org/title/([\w\W]*)/[\w\W]*', url)
-        if clear_id is None:
-            return False
-        return clear_id.group(1)
-
-    if title_id := __get_id_from_url(title_identificator):
-        return ParseTitle(title_id)
-    elif re.match(r'[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}', title_identificator):
-        return ParseTitle(title_identificator)
-    else:
-        return ParseTitleName(title_identificator)
 
 
 class ParseTitleName:
