@@ -101,6 +101,8 @@ def print_beauty_table_begin(title):
         parts_number = title_length // 55 + 1
         for part in range(parts_number):
             print(f'| {title.title_name[part*54: part*54 + 54]: ^60} |')
+    else:
+        print(f'| {title.title_name: ^60} |')
     print(f'| {"-" * 58: ^60} |')
     print(f'| {"num": >3} | {"ch": ^6} | {"lang": ^6} | {"id": ^36} |')
     print(f'| {"---": >3} | {"--": ^6} | {"----": ^6} | {"-"*34: ^36} |')

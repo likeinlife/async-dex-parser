@@ -60,7 +60,7 @@ class ParseTitleName:
 
         json_response = json.load(urllib.request.urlopen(req, context=ctx))
 
-        content = jmespath.search('data[].{id:id, title: attributes.title.en}', json_response)
+        content = jmespath.search('data[].{id:id, title: attributes.title.* | [0]}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
         self._total = total
 
@@ -88,7 +88,7 @@ class ParseTitle:
 
         json_response = json.load(urllib.request.urlopen(req, context=ctx))
 
-        name = jmespath.search('data.attributes.title.en', json_response)
+        name = jmespath.search('data.attributes.title.* | [0]', json_response)
 
         return name
 
