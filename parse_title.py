@@ -7,6 +7,8 @@ from typing import NamedTuple
 import jmespath  # type: ignore
 
 from headers import parse_title_headers
+from parse_chapter import get_chapter, ImageDownloader
+from pathlib import Path
 
 
 class Chapter(NamedTuple):
@@ -35,6 +37,7 @@ def get_title(url_or_id: str):
 class ParseTitleName:
 
     def __init__(self, name: str) -> None:
+        self._total = 0
         self._chapter_ids = self.getJsonWithTitles(name)
 
     def getJsonWithTitles(self, name: str, offset: int = 0):
@@ -52,6 +55,7 @@ class ParseTitleName:
 
         content = jmespath.search('data[].{id:id, title: attributes.title.en}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
+        self._total = total
 
         if total > limit and offset + limit < total:
             content.extend(self.getJsonWithTitles(name, offset + limit))
@@ -62,17 +66,32 @@ class ParseTitleName:
 class ParseTitle:
 
     def __init__(self, title_id) -> None:
-        self.__id = title_id
-        self.__json = self.getJsonWithChapters(self.__id)
-        self.__chapters: list[Chapter] = self.parseJson(self.__json)
+        self.id = title_id
+        self.title_name: str = self.__getTitleName()
+        self.__chapters: list[Chapter] = self.__parseJson(self.getJsonWithChapters())
 
-    def getJsonWithChapters(self, title_id: str, offset: int = 0):
+    def __getTitleName(self) -> str:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        req = urllib.request.Request(f'https://api.mangadex.org/manga/{self.id}')
+        for key, value in parse_title_headers.items():
+            req.add_header(key, value)
+
+        json_response = json.load(urllib.request.urlopen(req, context=ctx))
+
+        name = jmespath.search('data.attributes.title.en', json_response)
+
+        return name
+
+    def getJsonWithChapters(self, offset: int = 0):
 
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-        req = urllib.request.Request(f'https://api.mangadex.org/manga/{title_id}'\
+        req = urllib.request.Request(f'https://api.mangadex.org/manga/{self.id}'\
             f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'\
             f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'\
             f'contentRating[]=erotica&contentRating[]=pornographic')
@@ -85,12 +104,12 @@ class ParseTitle:
         total, limit = json_response.get('total'), json_response.get('limit')
 
         if total > limit and offset + limit < total:
-            content.extend(self.getJsonWithChapters(self.__id, offset + limit))
+            content.extend(self.getJsonWithChapters(offset + limit))
 
         return content
 
     @staticmethod
-    def parseJson(json_response: dict) -> list[Chapter]:
+    def __parseJson(json_response: dict) -> list[Chapter]:
         chapters_data = jmespath.search(
             '[*].{id: id, chapter: attrs.chapter, lang: attrs.translatedLanguage, pages: attrs.pages}', json_response)
 
@@ -101,9 +120,26 @@ class ParseTitle:
 
         return chapters_list
 
+    def massDownload(self, lang: str = 'en', directory: Path = Path()):
+        directory_for_title = self.makeDirectoryName(directory)
+        if not directory_for_title.exists():
+            directory_for_title.mkdir()
+        for chapter_info in self.__chapters:
+            if chapter_info.lang == lang:
+                chapter = get_chapter(chapter_info.id)
+                ImageDownloader(chapter, directory=directory_for_title)
+
+    def makeDirectoryName(self, directory):
+        if len(self.title_name) > 20:
+            short_title_name = self.title_name[:20]
+            directory_for_title = directory / short_title_name
+        else:
+            directory_for_title = directory / self.title_name
+        return directory_for_title
+
     @property
     def chapters(self):
         return self.__chapters
 
     def __repr__(self) -> str:
-        return f'{self.__id}'
+        return f'{self.id}'

@@ -8,6 +8,8 @@ import pyperclip
 import parse_chapter
 import parse_title
 
+table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
+
 
 class MyParser(argparse.ArgumentParser):
 
@@ -27,10 +29,22 @@ class MyParser(argparse.ArgumentParser):
 def get_chapter_info(args: argparse.Namespace):
     chapter = parse_chapter.get_chapter(args.id)
     print(chapter)
-    table = {'y': True}
     download = input('download? y/n ')
     if table.get(download):
         parse_chapter.ImageDownloader(chapter, args.directory, args.folder_name)
+
+
+def print_chapters(chapters: list[parse_title.Chapter]):
+    for number, chapter in enumerate(chapters):
+        print(f'| {number: >3} | {chapter.chapter: ^6} | {chapter.lang: ^6} | {chapter.id} |')
+    print(f'  {"-" * 58: ^60} ')
+    copy = input('copy? y/n ')
+    if copy == 'n':
+        return
+    chapter_number = int(input('chapter number? >> '))
+    for number, chapter in enumerate(chapters):
+        if number == chapter_number:
+            pyperclip.copy(chapter.id)
 
 
 def get_title_info(args: argparse.Namespace):
@@ -39,17 +53,32 @@ def get_title_info(args: argparse.Namespace):
         chapters = title.chapters
     else:
         chapters = list(filter(lambda x: x.lang == args.language, title.chapters))
-    print(f'{"num": >3} | {"ch": ^5} | {"lang": ^6} | Id')
-    print(f'{"---": >3} | {"---": ^5} | {"---": ^6} | ---')
-    for number, chapter in enumerate(chapters):
-        print(f'{number: >3} | {chapter.chapter: ^5} | {chapter.lang: ^6} | {chapter.id}')
-    copy = input('copy? y/n ')
-    if copy == 'n':
-        return
-    chapter_number = int(input('chapter number? >> '))
-    for number, chapter in enumerate(chapters):
-        if number == chapter_number:
-            pyperclip.copy(chapter.id)
+    if args.mass:
+        title_mass_download(title, args)
+    else:
+        print_beauty_table_begin(title)
+        print_chapters(chapters)
+
+
+def print_beauty_table_begin(title):
+    print(f'  {"-" * 58: ^60} ')
+    if (title_length := len(title.title_name)) > 55:
+        parts_number = title_length // 55 + 1
+        for part in range(parts_number):
+            print(f'| {title.title_name[part*54: part*54 + 54]: ^60} |')
+    print(f'| {"-" * 58: ^60} |')
+    print(f'| {"num": >3} | {"ch": ^6} | {"lang": ^6} | {"id": ^36} |')
+    print(f'| {"---": >3} | {"--": ^6} | {"----": ^6} | {"-"*34: ^36} |')
+
+
+def title_mass_download(title: parse_title.ParseTitle, args: argparse.Namespace):
+    chapter_number = len(list(filter(lambda chapter: chapter.lang == args.language, title.chapters)))
+    approval = input(f'You want to download all chapters? Title - {title.title_name}, chapters - {chapter_number}\n'\
+                     f'y/n >> ')
+    if table[approval]:
+        title.massDownload(lang=args.language, directory=args.directory)
+    else:
+        print('Stopping')
 
 
 def parse_args():
@@ -66,6 +95,11 @@ def parse_args():
     title = subparsers.add_parser('title', help='Title info')
     title.add_argument('id', type=str, help='Title id or url')
     title.add_argument('--language', '-l', help='Language', default='en', choices=('ru', 'en', 'any'))
+    title.add_argument('--mass',
+                       '-m',
+                       help='Download all chapters. By default download all en chapters',
+                       action='store_true')
+    title.add_argument('--directory', '-d', help='Directory for save', default=Path())
     title.set_defaults(func=get_title_info)
 
     favs = subparsers.add_parser('fav', help='Actions with favourite list')
