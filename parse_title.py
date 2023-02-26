@@ -1,6 +1,7 @@
 import json
 import ssl
 import re
+import textwrap
 import urllib.request
 from typing import NamedTuple
 
@@ -18,7 +19,7 @@ class Chapter(NamedTuple):
     pages: int
 
 
-def get_title(url_or_id: str):
+def get_title(title_identificator: str):
 
     def __get_id_from_url(url: str) -> str | bool:
         clear_id = re.match(r'https://mangadex.org/title/([\w\W]*)/[\w\W]*', url)
@@ -26,21 +27,26 @@ def get_title(url_or_id: str):
             return False
         return clear_id.group(1)
 
-    if title_id := __get_id_from_url(url_or_id):
+    if title_id := __get_id_from_url(title_identificator):
         return ParseTitle(title_id)
-    elif re.match(r'[a-zA-Z0-90]', url_or_id):
-        return ParseTitle(url_or_id)
+    elif re.match(r'[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}', title_identificator):
+        return ParseTitle(title_identificator)
     else:
-        raise Exception('Incorrect entry value')
+        return ParseTitleName(title_identificator)
 
 
 class ParseTitleName:
 
     def __init__(self, name: str) -> None:
         self._total = 0
-        self._chapter_ids = self.getJsonWithTitles(name)
+        self.titles = self.getTitles(name)
+        self.checkTotal()
 
-    def getJsonWithTitles(self, name: str, offset: int = 0):
+    def checkTotal(self):
+        if self._total > 10:
+            exit('Total number of titles is too much. Try more specific name')
+
+    def getTitles(self, name: str, offset: int = 0) -> list[dict[str, str]]:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
@@ -58,7 +64,7 @@ class ParseTitleName:
         self._total = total
 
         if total > limit and offset + limit < total:
-            content.extend(self.getJsonWithTitles(name, offset + limit))
+            content.extend(self.getTitles(name, offset + limit))
 
         return content
 
@@ -130,11 +136,7 @@ class ParseTitle:
                 ImageDownloader(chapter, directory=directory_for_title)
 
     def makeDirectoryName(self, directory):
-        if len(self.title_name) > 20:
-            short_title_name = self.title_name[:20]
-            directory_for_title = directory / short_title_name
-        else:
-            directory_for_title = directory / self.title_name
+        directory_for_title = directory / textwrap.shorten(self.title_name, 20)
         return directory_for_title
 
     @property

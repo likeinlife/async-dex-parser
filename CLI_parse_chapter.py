@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+import textwrap
 
 import pyperclip
 
@@ -41,14 +42,40 @@ def print_chapters(chapters: list[parse_title.Chapter]):
     copy = input('copy? y/n ')
     if copy == 'n':
         return
-    chapter_number = int(input('chapter number? >> '))
-    for number, chapter in enumerate(chapters):
-        if number == chapter_number:
-            pyperclip.copy(chapter.id)
+    while True:
+        choosen_number = input('chapter number? >> ')
+        if not choosen_number.isnumeric():
+            exit('Stopping')
+        for number, chapter in enumerate(chapters):
+            if number == int(choosen_number):
+                return pyperclip.copy(chapter.id)
+
+
+def choose_title(title: parse_title.ParseTitle | parse_title.ParseTitleName) -> parse_title.ParseTitle:
+    if isinstance(title, parse_title.ParseTitle):
+        return title
+    else:
+        print('There are more than 1 title found by this name')
+        print(f'| {"num": ^3} | {"name": ^30} | {"id": ^36} |')
+        print(f'| {"-" * 72: ^75} |')
+        for number, this_title in enumerate(title.titles):
+            title_name = textwrap.shorten(this_title['title'], 30)
+            print(f'| {number: ^3} | {title_name: ^30} | {this_title["id"]: ^36} |')
+        print(f'  {"-" * 72: ^75}  ')
+        while True:
+            choosen_number = input('title number? >> ')
+            if not choosen_number.isnumeric():
+                exit('Stopping')
+            for number, this_title in enumerate(title.titles):
+                if number == int(choosen_number):
+                    return parse_title.ParseTitle(this_title['id'])
+            print('There is no number. Try again')
 
 
 def get_title_info(args: argparse.Namespace):
     title = parse_title.get_title(args.id)
+    title = choose_title(title)
+
     if args.language == 'any':
         chapters = title.chapters
     else:
@@ -61,7 +88,6 @@ def get_title_info(args: argparse.Namespace):
 
 
 def print_beauty_table_begin(title):
-    print(f'  {"-" * 58: ^60} ')
     if (title_length := len(title.title_name)) > 55:
         parts_number = title_length // 55 + 1
         for part in range(parts_number):
@@ -93,7 +119,7 @@ def parse_args():
     chapter.set_defaults(func=get_chapter_info)
 
     title = subparsers.add_parser('title', help='Title info')
-    title.add_argument('id', type=str, help='Title id or url')
+    title.add_argument('id', type=str, help='Title id or url or name')
     title.add_argument('--language', '-l', help='Language', default='en', choices=('ru', 'en', 'any'))
     title.add_argument('--mass',
                        '-m',
