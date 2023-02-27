@@ -31,16 +31,18 @@ options:
 - title
   - `dex title c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - will show Sewayaki Kitsune manga information
   - `dex title Sewayaki Kitsune`
+  - `dex title Sewayaki Kitsune -f` - will find manga and add it to favourite list
   - `dex title Sewayaki Kitsune --mass` - will download all available chapters on english language
   - `dex title Sewayaki Kitsune -m -l any` - will download all available chapters on any language
 
 - chapter
   - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735` - will download Sewayaki Kitsune 91 chapter
+  - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735 -n '91 chapter' -d 'C:\Users\USER\desktop'` - will download Sewayaki Kitsune 91 chapter in folder C:\Users\USER\desktop\91 chapter
 
 - favoruite list
   - `dex fav list` - show your favourite list
-  - `dex fav add -id c26269c7-0f5d-4966-8cd5-b79acb86fb7a -t Sewayaki Kitsune` - add Sewayaki Kitsune manga to your favourite list
-  - `dex fav del -id ce7f8709-c27c-465d-bdd9-d9c0c99b3735` - delete Sewayaki Kitsune from your favourite list
+  - `dex fav add Sewayaki Kitsune c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - add Sewayaki Kitsune manga to your favourite list
+  - `dex fav del 1` - delete the first title in your list
 
 # Tip to easy use:
 
