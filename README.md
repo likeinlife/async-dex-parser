@@ -37,7 +37,7 @@ options:
 
 - chapter
   - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735` - will download Sewayaki Kitsune 91 chapter
-  - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735 -n '91 chapter' -d 'C:\Users\USER\desktop'` - will download Sewayaki Kitsune 91 chapter in folder C:\Users\USER\desktop\91 chapter
+  - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735 -n '91 chapter' -d 'C:\Users\USER\desktop'` - will download Sewayaki Kitsune 91 chapter in folder `C:\Users\USER\desktop\91 chapter`
 
 - favoruite list
   - `dex fav list` - show your favourite list
