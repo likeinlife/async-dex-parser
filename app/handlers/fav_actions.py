@@ -4,7 +4,7 @@ import json
 import re
 from tabulate import tabulate  # type: ignore
 
-from .title_actions import get_title_info
+from .title_actions import get_title
 
 BASEPATH = Path(__file__).parent.parent / 'favs.json'
 
@@ -51,7 +51,9 @@ def see_favourite_list(args: argparse.Namespace):
         if not choosen_number.isnumeric():
             exit('Stopping')
         if int(choosen_number) <= len(favs) - 1:
-            return get_title_info(args, favs[int(choosen_number)]['id'])
+            id = favs[int(choosen_number)]['id']
+            own_namepsace = argparse.Namespace(id=id, language=args.language)
+            return get_title(own_namepsace)
         print('There is no item with that number')
 
 
@@ -87,7 +89,11 @@ def add_favourite_list_item(args: argparse.Namespace):
 
     with open(BASEPATH, 'r') as file_obj:
         favourites: list = json.load(file_obj)
-        favourites.append(title)
+        if title in favourites:
+            print('Title already in favourites')
+            return
+        else:
+            favourites.append(title)
 
     with open(BASEPATH, 'w') as file_obj:
         json.dump(favourites, file_obj, ensure_ascii=False, indent=4)

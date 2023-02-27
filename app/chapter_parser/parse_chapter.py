@@ -78,7 +78,10 @@ class SingleParser:
     def __repr__(self) -> str:
         headers = ('manga name', 'chapter name', 'id', 'pages')
         manga_name = textwrap.shorten(self.chapter_info.manga_title, 30)
-        chapter_name = textwrap.shorten(self.chapter_info.name, 30)
+        if self.chapter_info.name:
+            chapter_name = textwrap.shorten(self.chapter_info.name, 30)
+        else:
+            chapter_name = ""
 
         content = ((manga_name, chapter_name, self.chapter_info.id, self.chapter_info.pages),)
         table = tabulate(content, headers=headers, stralign='center', tablefmt='rounded_outline')

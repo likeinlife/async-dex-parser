@@ -35,22 +35,19 @@ def parse_args():
     title = subparsers.add_parser('title', help='See info about manga')
     title.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)
     title.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
+    title.add_argument('--add-fav', '-f', help='Add to favourite', action='store_true')
     title.add_argument('--mass',
                        '-m',
                        help='Download all chapters. By default download all en chapters',
                        action='store_true')
     title.add_argument('--directory', '-d', help='Directory for save', default=Path())
-    title.set_defaults(func=title_actions.get_title_info)
+    title.add_argument('--folder-name', '-n', help='Folder to save', default="")
+    title.set_defaults(func=title_actions.get_title)
 
     fav = subparsers.add_parser('fav', help='Favourite list')
     fav_acts = fav.add_subparsers(help='Favourite list actions')
     fav_acts_list = fav_acts.add_parser('list', help='See your favourite list')
     fav_acts_list.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
-    fav_acts_list.add_argument('--mass',
-                               '-m',
-                               help='Download all chapters. By default download all en chapters',
-                               action='store_true')
-    fav_acts_list.add_argument('--directory', '-d', help='Directory for save', default=Path())
     fav_acts_list.set_defaults(func=fav_actions.see_favourite_list)
 
     fav_acts_add = fav_acts.add_parser('add', help='Add item to your favourite list')

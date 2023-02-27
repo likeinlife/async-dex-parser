@@ -33,7 +33,10 @@ def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespac
         choosen_number = input('chapter number? >> ')
         if not choosen_number.isnumeric():
             exit('Stopping')
-        return get_chapter(args, (chapters[int(choosen_number)].id))
+        own_namespace = argparse.Namespace(id=chapters[int(choosen_number)].id,
+                                           folder_name=args.folder_name,
+                                           directory=args.directory)
+        return get_chapter(own_namespace)
 
 
 def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -> title_parser.ParseTitle:
@@ -60,14 +63,8 @@ def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -
             print('There is no title with that number')
 
 
-def get_title_id(args: argparse.Namespace, title_id: Optional[str]) -> str:
-    if title_id:
-        return title_id
-    return " ".join(args.id)
-
-
-def get_title_info(args: argparse.Namespace, id: Optional[str] = None):
-    identificator = get_title_id(args, id)
+def get_title(args: argparse.Namespace):
+    identificator = " ".join(args.id)
     title = title_parser.get_title(identificator)
     title = choose_title(title)
 
@@ -75,7 +72,12 @@ def get_title_info(args: argparse.Namespace, id: Optional[str] = None):
         chapters = title.chapters
     else:
         chapters = list(filter(lambda x: x.lang == args.language, title.chapters))
-    if args.mass:
+    if 'add_fav' in args and args.add_fav:
+        from .fav_actions import add_favourite_list_item
+        own_namespace = argparse.Namespace(name=title.title_name, id=title.id)
+        add_favourite_list_item(own_namespace)
+
+    if 'mass' in args and args.mass:
         title_mass_download(title, args)
     else:
         if len(chapters) == 0:
