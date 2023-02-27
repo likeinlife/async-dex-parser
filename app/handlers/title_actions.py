@@ -1,3 +1,4 @@
+from typing import Optional
 from app import title_parser
 import textwrap
 import argparse
@@ -5,7 +6,7 @@ import tabulate  # type: ignore
 
 from .chapter_actions import get_chapter
 
-table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
+true_table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
 
 def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespace):
@@ -16,16 +17,17 @@ def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespac
     headers = ('chapter', 'language', 'id')
     content = ((chapter.chapter, chapter.lang, chapter.id) for chapter in chapters)
 
-    print(
-        tabulate.tabulate(content,
-                          headers=headers,
-                          tablefmt='rounded_outline',
-                          stralign='center',
-                          numalign='right',
-                          showindex='always'))
+    table = (tabulate.tabulate(content,
+                               headers=headers,
+                               tablefmt='rounded_outline',
+                               stralign='center',
+                               numalign='right',
+                               showindex='always'))
+
+    print(table)
 
     copy = input('copy? y/n >> ')
-    if not table.get(copy):
+    if not true_table.get(copy):
         return
     while True:
         choosen_number = input('chapter number? >> ')
@@ -43,7 +45,12 @@ def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -
         print('There are more than 1 title found by this name')
         headers = ('name', 'id')
         content = ((textwrap.shorten(title['title'], 30), title['id']) for title in title.titles)
-        print(tabulate.tabulate(content, headers=headers, stralign='center', tablefmt='rounded_outline', showindex='always'))
+        table = (tabulate.tabulate(content,
+                                   headers=headers,
+                                   stralign='center',
+                                   tablefmt='rounded_outline',
+                                   showindex='always'))
+        print(table)
         while True:
             choosen_number = input('title number? >> ')
             if not choosen_number.isnumeric():
@@ -53,8 +60,14 @@ def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -
             print('There is no title with that number')
 
 
-def get_title_info(args: argparse.Namespace):
-    identificator = " ".join(args.id)
+def get_title_id(args: argparse.Namespace, title_id: Optional[str]) -> str:
+    if title_id:
+        return title_id
+    return " ".join(args.id)
+
+
+def get_title_info(args: argparse.Namespace, id: Optional[str] = None):
+    identificator = get_title_id(args, id)
     title = title_parser.get_title(identificator)
     title = choose_title(title)
 
@@ -76,7 +89,7 @@ def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace
     chapter_number = len(list(filter(lambda chapter: chapter.lang == args.language, title.chapters)))
     approval = input(f'You want to download all chapters? Title - {title.title_name}, chapters - {chapter_number}\n'\
                      f'y/n >> ')
-    if table[approval]:
+    if true_table[approval]:
         title.massDownload(lang=args.language, directory=args.directory)
     else:
-        print('Stopping')
+        exit('Stopping')

@@ -24,17 +24,17 @@ def parse_args():
     description = 'MangaDex parser for titles and chapters.'
     parser = MyParser(prog=prog, description=description)
 
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(help="Available commands")
 
-    chapter = subparsers.add_parser('chapter', help='Download chapter by its id')
+    chapter = subparsers.add_parser('chapter', help='Download chapter')
     chapter.add_argument('id', type=str, help='Chapter id or url')
     chapter.add_argument('--directory', '-d', help='Directory to save', default=Path())
     chapter.add_argument('--folder_name', '-n', help='Folder to save', default="")
     chapter.set_defaults(func=chapter_actions.get_chapter)
 
-    title = subparsers.add_parser('title', help='Title info')
+    title = subparsers.add_parser('title', help='See info about manga')
     title.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)
-    title.add_argument('--language', '-l', help='Language', default='en', choices=('ru', 'en', 'any'))
+    title.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
     title.add_argument('--mass',
                        '-m',
                        help='Download all chapters. By default download all en chapters',
@@ -42,11 +42,25 @@ def parse_args():
     title.add_argument('--directory', '-d', help='Directory for save', default=Path())
     title.set_defaults(func=title_actions.get_title_info)
 
-    favs = subparsers.add_parser('fav', help='Actions with favourite list')
-    favs.add_argument('action', choices=('list', 'add', 'del'))
-    favs.add_argument('--id', '-id', help='Title id')
-    favs.add_argument('--title', '-t', help='Title name')
-    favs.set_defaults(func=fav_actions.FavouriteList())
+    fav = subparsers.add_parser('fav', help='Favourite list')
+    fav_acts = fav.add_subparsers(help='Favourite list actions')
+    fav_acts_list = fav_acts.add_parser('list', help='See your favourite list')
+    fav_acts_list.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
+    fav_acts_list.add_argument('--mass',
+                               '-m',
+                               help='Download all chapters. By default download all en chapters',
+                               action='store_true')
+    fav_acts_list.add_argument('--directory', '-d', help='Directory for save', default=Path())
+    fav_acts_list.set_defaults(func=fav_actions.see_favourite_list)
+
+    fav_acts_add = fav_acts.add_parser('add', help='Add item to your favourite list')
+    fav_acts_add.add_argument('name', help='Manga name')
+    fav_acts_add.add_argument('id', help='Manga id')
+    fav_acts_add.set_defaults(func=fav_actions.add_favourite_list_item)
+
+    fav_acts_del = fav_acts.add_parser('del', help='Delete item from your favourite list')
+    fav_acts_del.add_argument('num', type=int, help='Number in favourite list')
+    fav_acts_del.set_defaults(func=fav_actions.delete_favourite_list_item)
 
     args = parser.parse_args()
     return args

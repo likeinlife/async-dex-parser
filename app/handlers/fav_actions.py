@@ -1,75 +1,96 @@
 from pathlib import Path
+import argparse
 import json
-import pyperclip
+import re
+from tabulate import tabulate  # type: ignore
 
-class FavouriteList:
-    BASEPATH = Path(__file__).parent.parent / 'favs.json'
+from .title_actions import get_title_info
 
-    def __call__(self, args):
-        action = args.action
-        table = {
-            'list': self.list,
-            'add': self.add,
-            'del': self.delete,
-        }
-        return table[action](args)
+BASEPATH = Path(__file__).parent.parent / 'favs.json'
 
-    def checkFavListIsEmpty(self):
-        global abs_path_to_fav
-        if self.BASEPATH.exists():
-            if self.BASEPATH.__sizeof__():
-                return False
-        else:
-            with open(self.BASEPATH, 'w', encoding='UTF-8') as file_obj:
-                json.dump({}, file_obj, ensure_ascii=False, indent=4)
-            print('Favourite list does not exists. Just made one')
+true_table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
-        return True
 
-    def list(self, _):
-        if self.checkFavListIsEmpty():
+def validate_id(title_identificator: str) -> str:
+    if re.match(r'[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}', title_identificator):
+        return title_identificator
+    else:
+        exit('Not a valid id')
+
+
+def check_if_favourite_list_empty():
+    if BASEPATH.exists():
+        return False
+    else:
+        with open(BASEPATH, 'w', encoding='UTF-8') as file_obj:
+            json.dump({}, file_obj, ensure_ascii=False, indent=4)
+        print('Favourite list does not exists. Just made one')
+
+    return True
+
+
+def see_favourite_list(args: argparse.Namespace):
+    if check_if_favourite_list_empty():
+        return
+    with open(BASEPATH, 'r') as file_obj:
+        favs = json.load(file_obj)
+
+    if not len(favs):
+        exit('Favourite list is empty')
+
+    headers = ('name', 'id')
+    content = ((item['name'], item['id']) for item in favs)
+    table = tabulate(content, headers=headers, showindex='always', stralign='center', tablefmt='rounded_outline')
+    print(table)
+
+    copy = input('Details? y/n ')
+    if not true_table.get(copy):
+        return
+    while True:
+        choosen_number = input('title number? >> ')
+        if not choosen_number.isnumeric():
+            exit('Stopping')
+        if int(choosen_number) <= len(favs) - 1:
+            return get_title_info(args, favs[int(choosen_number)]['id'])
+        print('There is no item with that number')
+
+
+def delete_favourite_list_item(args: argparse.Namespace):
+    if check_if_favourite_list_empty():
+        return
+    with open(BASEPATH, 'r') as file_obj:
+        favs = json.load(file_obj)
+
+    if not len(favs):
+        exit('Favourite list is empty')
+
+    if args.num > len(favs) - 1:
+        exit('Not a valid number')
+
+    with open(BASEPATH, 'r') as file_obj:
+        favourites: list = json.load(file_obj)
+        deleted: dict[str, str] = favourites.pop(args.num)
+
+    with open(BASEPATH, 'w') as file_obj:
+        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+
+    print(f'Deleted {deleted["name"]} with id {deleted["id"]} to favourite list')
+
+
+def add_favourite_list_item(args: argparse.Namespace):
+    title = {'name': args.name, 'id': validate_id(args.id)}
+    if check_if_favourite_list_empty():
+        with open(BASEPATH, 'w') as file_obj:
+            json.dump([title], file_obj, indent=4, ensure_ascii=False)
+            print(f'Added {title["name"]} with id {title["id"]} to favourite list')
             return
-        with open(self.BASEPATH, 'r') as file_obj:
-            favs = json.load(file_obj)
 
-        for number, (title_id, title_name) in enumerate(favs.items()):
-            print(f'{number: >3} | {title_id} | {title_name}')
+    with open(BASEPATH, 'r') as file_obj:
+        favourites: list = json.load(file_obj)
+        favourites.append(title)
 
-        copy = input('Copy? y/n ')
-        if copy == 'n':
-            return
-        chapter_number = int(input('chapter number? >> '))
-        for number, (title_id, title_name) in enumerate(favs.items()):
-            if number == chapter_number:
-                pyperclip.copy(title_id)
+    with open(BASEPATH, 'w') as file_obj:
+        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
-    def add(self, args):
-        title = {args.title: args.id}
-        if self.checkFavListIsEmpty():
-            with open(self.BASEPATH, 'w') as file_obj:
-                json.dump(title, file_obj, indent=4, ensure_ascii=False)
-                return
+    print(f'Added {title["name"]} with id {title["id"]} to favourite list')
 
-        with open(self.BASEPATH, 'r') as file_obj:
-            favourites: dict = json.load(file_obj)
-            favourites.update(title)
-
-        with open(self.BASEPATH, 'w') as file_obj:
-            json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
-
-        print(f'Add {args.title}')
-
-    def delete(self, args):
-        with open(self.BASEPATH, 'r') as file_obj:
-            favourites: dict = json.load(file_obj)
-
-        if args.id in favourites:
-            favourites.pop(args.id)
-            print(f"deleted {args.id}")
-        else:
-            print("Element not found")
-            return
-
-        with open(self.BASEPATH, 'w') as file_obj:
-            json.dump(favourites, file_obj)
-            return
