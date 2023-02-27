@@ -55,7 +55,7 @@ class ParseTitleName:
 
 class ParseTitle:
 
-    def __init__(self, title_id) -> None:
+    def __init__(self, title_id: str) -> None:
         self.id = title_id
         self.title_name: str = self.__getTitleName()
         self.__chapters: list[Chapter] = self.__parseJson(self.getJsonWithChapters())

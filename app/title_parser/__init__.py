@@ -1,19 +1,14 @@
 import re
 
 from .parse_title import Chapter, ParseTitle, ParseTitleName
+from app import common
 
 
-def get_title(title_identificator: str):
+def get_title(identificator: str):
 
-    def __get_id_from_url(url: str) -> str | bool:
-        clear_id = re.match(r'https://mangadex.org/title/([\w\W]*)/[\w\W]*', url)
-        if clear_id is None:
-            return False
-        return clear_id.group(1)
-
-    if title_id := __get_id_from_url(title_identificator):
+    if title_id := common.get_id_from_url(identificator, 'title'):
         return ParseTitle(title_id)
-    elif re.match(r'[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}', title_identificator):
-        return ParseTitle(title_identificator)
+    elif re.match(common.id_pattern, identificator):
+        return ParseTitle(identificator)
     else:
-        return ParseTitleName(title_identificator)
+        return ParseTitleName(identificator)

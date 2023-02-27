@@ -24,7 +24,7 @@ class Chapter(NamedTuple):
     pages: int
 
 
-class SingleParser:
+class ParseChapter:
     """Parses dex chapter via id or url"""
 
     def __init__(self, chapter_id: str):
@@ -36,7 +36,7 @@ class SingleParser:
         return tasks
 
     @staticmethod
-    def cleanURL(url: str) -> str:
+    def __cleanURL(url: str) -> str:
         clear_id = re.search(r'chapter/([\w\W]*)/[^/]', url)
         if clear_id is None:
             raise TypeError("Не получается найти айди из URL")
@@ -52,14 +52,14 @@ class SingleParser:
                 image_names = jmespath.search("chapter.data[*]", json_response)
                 base_url = json_response['baseUrl']
                 ch_hash = json_response['chapter']['hash']
-                image_urls = list(map(lambda x: self.makeURLFromImageName(base_url, ch_hash, x), image_names))
+                image_urls = list(map(lambda x: self.__makeURLFromImageName(base_url, ch_hash, x), image_names))
                 return image_urls
             except KeyError:
                 raise KeyError('There is no baseUrl key in json response. Maybe you accidently typed title_id?')
             except Exception as e:
                 raise Exception(f'{e}. Somethig went wrong')
 
-    def makeURLFromImageName(self, base_url, ch_hash, image_name: str) -> str:
+    def __makeURLFromImageName(self, base_url, ch_hash, image_name: str) -> str:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
     async def _getChapter(self) -> Chapter:
@@ -88,7 +88,7 @@ class SingleParser:
         return table
 
 
-class MassParser(SingleParser):
+class MassParser(ParseChapter):
 
     def __init__(self, chapter_id: list[str]):
         raise NotImplementedError()
@@ -96,7 +96,7 @@ class MassParser(SingleParser):
 
 class ImageDownloader:
 
-    def __init__(self, chapter: SingleParser, directory: Path = Path(), folder_name: str = "") -> None:
+    def __init__(self, chapter: ParseChapter, directory: Path = Path(), folder_name: str = "") -> None:
         if folder_name:
             self.path_to_dir = directory / folder_name
         else:

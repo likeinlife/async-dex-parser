@@ -70,7 +70,7 @@ def get_title(args: argparse.Namespace):
         identificator = args.id
     else:
         identificator = " ".join(args.id)
-    title = title_parser.get_title(identificator)
+    title = title_parser.get_title(identificator, 'title')
     title = choose_title(title)
 
     if args.language == 'any':
