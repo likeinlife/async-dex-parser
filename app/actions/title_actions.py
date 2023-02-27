@@ -38,7 +38,7 @@ def find_title(identificator: str) -> title_parser.ParseTitle:
         return founded
     else:
         if len(founded) == 1:
-            return title_parser.ParseTitle(identificator)
+            return title_parser.ParseTitle(founded[0]['id'])
         else:
             return choose_title_by_name(founded)
 

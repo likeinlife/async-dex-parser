@@ -41,8 +41,9 @@ class ParseTitleName:
 
         return content
 
-
     def __len__(self):
         return len(self.titles)
 
 
+    def __getitem__(self, key):
+        return self.titles[key]

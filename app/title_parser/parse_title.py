@@ -74,8 +74,7 @@ class ParseTitle:
 
     @staticmethod
     def __parseJson(json_response: dict) -> list[Chapter]:
-        chapters_data = jmespath.search(
-            '[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]', json_response)
+        chapters_data = jmespath.search('[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]', json_response)
 
         def __make_chapter(chapter_info):
             return Chapter(*chapter_info)
