@@ -1,7 +1,8 @@
-from pathlib import Path
 import argparse
 import json
 import re
+from pathlib import Path
+
 from tabulate import tabulate  # type: ignore
 
 from .title_actions import get_title
@@ -43,16 +44,16 @@ def see_favourite_list(args: argparse.Namespace):
     table = tabulate(content, headers=headers, showindex='always', stralign='center', tablefmt='rounded_outline')
     print(table)
 
-    copy = input('Details? y/n ')
-    if not true_table.get(copy):
+    details = input('Details? y/n ')
+    if not true_table.get(details):
         return
     while True:
         choosen_number = input('title number? >> ')
         if not choosen_number.isnumeric():
             exit('Stopping')
-        if int(choosen_number) <= len(favs) - 1:
+        if 0 <= int(choosen_number) <= len(favs) - 1:
             id = favs[int(choosen_number)]['id']
-            own_namepsace = argparse.Namespace(id=id, language=args.language)
+            own_namepsace = argparse.Namespace(id=id, language=args.language, folder_name="", directory=Path())
             return get_title(own_namepsace)
         print('There is no item with that number')
 

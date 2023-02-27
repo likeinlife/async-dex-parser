@@ -1,5 +1,6 @@
 from app import cli
 
+
 def main():
     args = cli.parse_args()
     args.func(args)

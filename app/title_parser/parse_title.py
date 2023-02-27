@@ -2,13 +2,13 @@ import json
 import ssl
 import textwrap
 import urllib.request
+from pathlib import Path
 from typing import NamedTuple
 
 import jmespath  # type: ignore
 
+from ..chapter_parser import ImageDownloader, get_chapter
 from ..headers import parse_title_headers
-from ..chapter_parser import get_chapter, ImageDownloader
-from pathlib import Path
 
 
 class Chapter(NamedTuple):

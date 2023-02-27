@@ -1,5 +1,6 @@
 import argparse
 from typing import Optional
+
 from app import chapter_parser
 
 table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}

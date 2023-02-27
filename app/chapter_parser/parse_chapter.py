@@ -1,10 +1,11 @@
 import asyncio
 import re
-from pathlib import Path
 import textwrap
+import time
+from pathlib import Path
 from typing import NamedTuple
 
-import aiofiles # type: ignore
+import aiofiles  # type: ignore
 import aiohttp
 import jmespath  # type: ignore
 import tqdm.asyncio  # type: ignore
@@ -12,7 +13,6 @@ from tabulate import tabulate  # type: ignore
 
 from .. import headers
 from ..config import config
-import time
 
 
 class Chapter(NamedTuple):

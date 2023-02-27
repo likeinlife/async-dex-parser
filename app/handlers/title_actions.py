@@ -1,8 +1,10 @@
-from typing import Optional
-from app import title_parser
-import textwrap
 import argparse
+import textwrap
+from typing import Optional
+
 import tabulate  # type: ignore
+
+from app import title_parser
 
 from .chapter_actions import get_chapter
 
@@ -64,7 +66,10 @@ def choose_title(title: title_parser.ParseTitle | title_parser.ParseTitleName) -
 
 
 def get_title(args: argparse.Namespace):
-    identificator = " ".join(args.id)
+    if isinstance(args.id , str):
+        identificator = args.id
+    else:
+        identificator = " ".join(args.id)
     title = title_parser.get_title(identificator)
     title = choose_title(title)
 

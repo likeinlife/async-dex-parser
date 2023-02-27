@@ -1,4 +1,4 @@
-from .parse_chapter import SingleParser, MassParser, ImageDownloader, Chapter
+from .parse_chapter import Chapter, ImageDownloader, MassParser, SingleParser
 
 
 def get_chapter(chapter_id: str | list[str]):

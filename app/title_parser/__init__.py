@@ -1,5 +1,6 @@
 import re
-from .parse_title import ParseTitle, ParseTitleName, Chapter
+
+from .parse_title import Chapter, ParseTitle, ParseTitleName
 
 
 def get_title(title_identificator: str):
