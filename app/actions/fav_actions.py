@@ -16,7 +16,7 @@ def check_if_favourite_list_empty():
         return False
     else:
         with open(BASEPATH, 'w', encoding='UTF-8') as file_obj:
-            json.dump({}, file_obj, ensure_ascii=False, indent=4)
+            json.dump([], file_obj, ensure_ascii=False, indent=4)
         print('Favourite list does not exists. Just made one')
 
     return True
@@ -72,13 +72,6 @@ def delete_favourite_list_item(args: argparse.Namespace):
     print(f'Deleted {deleted["name"]} with id {deleted["id"]} to favourite list')
 
 
-def check_if_manga_in_fav_list(favourite_list: list[dict], id: str):
-    for manga in favourite_list:
-        if manga.get('id') == id:
-            return True
-    return False
-
-
 def add_favourite_list_item(args: argparse.Namespace):
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
@@ -92,7 +85,7 @@ def add_favourite_list_item(args: argparse.Namespace):
 
     with open(BASEPATH, 'r') as file_obj:
         favourites: list = json.load(file_obj)
-        if check_if_manga_in_fav_list(favourites, id):
+        if title in favourites:
             print('Title already in favourites')
             return
         else:
