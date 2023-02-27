@@ -74,7 +74,7 @@ def delete_favourite_list_item(args: argparse.Namespace):
 
 
 def add_favourite_list_item(args: argparse.Namespace):
-    if id := common.validate_id(args.id):
+    if not (id := common.validate_id(args.id)):
         exit('Invalid id')
     title = {'name': args.name, 'id': id}
 
