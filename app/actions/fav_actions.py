@@ -7,16 +7,9 @@ from tabulate import tabulate  # type: ignore
 
 from .title_actions import get_title
 
+from app import common
+
 BASEPATH = Path(__file__).parent.parent / 'favs.json'
-
-true_table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
-
-
-def validate_id(title_identificator: str) -> str:
-    if re.match(r'[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}', title_identificator):
-        return title_identificator
-    else:
-        exit('Not a valid id')
 
 
 def check_if_favourite_list_empty():
@@ -45,7 +38,7 @@ def see_favourite_list(args: argparse.Namespace):
     print(table)
 
     details = input('Details? y/n ')
-    if not true_table.get(details):
+    if not common.true_table.get(details):
         return
     while True:
         choosen_number = input('title number? >> ')
@@ -81,7 +74,10 @@ def delete_favourite_list_item(args: argparse.Namespace):
 
 
 def add_favourite_list_item(args: argparse.Namespace):
-    title = {'name': args.name, 'id': validate_id(args.id)}
+    if id := common.validate_id(args.id):
+        exit('Invalid id')
+    title = {'name': args.name, 'id': id}
+
     if check_if_favourite_list_empty():
         with open(BASEPATH, 'w') as file_obj:
             json.dump([title], file_obj, indent=4, ensure_ascii=False)
@@ -100,4 +96,3 @@ def add_favourite_list_item(args: argparse.Namespace):
         json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
     print(f'Added {title["name"]} with id {title["id"]} to favourite list')
-

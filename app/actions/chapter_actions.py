@@ -1,5 +1,4 @@
 import argparse
-from typing import Optional
 
 from app import chapter_parser
 
@@ -12,4 +11,4 @@ def get_chapter(args: argparse.Namespace):
     print(chapter)
     download = input('download? y/n ')
     if table.get(download):
-        chapter_parser.ImageDownloader(chapter, args.directory, args.folder_name)
+        chapter.downloadChapter(args.directory, args.folder_name)

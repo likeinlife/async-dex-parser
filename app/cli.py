@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from app.handlers import chapter_actions, fav_actions, title_actions
+from app.actions import chapter_actions, fav_actions, title_actions
 
 
 class MyParser(argparse.ArgumentParser):
