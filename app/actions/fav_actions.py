@@ -1,6 +1,5 @@
 import argparse
 import json
-import re
 from pathlib import Path
 
 from tabulate import tabulate  # type: ignore
@@ -73,6 +72,13 @@ def delete_favourite_list_item(args: argparse.Namespace):
     print(f'Deleted {deleted["name"]} with id {deleted["id"]} to favourite list')
 
 
+def check_if_manga_in_fav_list(favourite_list: list[dict], id: str):
+    for manga in favourite_list:
+        if manga.get('id') == id:
+            return True
+    return False
+
+
 def add_favourite_list_item(args: argparse.Namespace):
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
@@ -86,7 +92,7 @@ def add_favourite_list_item(args: argparse.Namespace):
 
     with open(BASEPATH, 'r') as file_obj:
         favourites: list = json.load(file_obj)
-        if title in favourites:
+        if check_if_manga_in_fav_list(favourites, id):
             print('Title already in favourites')
             return
         else:
