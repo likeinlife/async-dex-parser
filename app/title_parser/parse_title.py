@@ -14,7 +14,7 @@ from ..headers import title_headers
 class Chapter(NamedTuple):
     id: str
     chapter: str
-    lang: str
+    language: str
     pages: int
 
 
@@ -30,7 +30,7 @@ class ParseTitle:
         if not directory_for_title.exists():
             directory_for_title.mkdir()
         for chapter_info in self.__chapters:
-            if chapter_info.lang == lang:
+            if chapter_info.language == lang:
                 chapter = get_chapter(chapter_info.id)
                 chapter.downloadChapter(directory=directory_for_title)
 
@@ -75,10 +75,10 @@ class ParseTitle:
     @staticmethod
     def __parseJson(json_response: dict) -> list[Chapter]:
         chapters_data = jmespath.search(
-            '[*].{id: id, chapter: attrs.chapter, lang: attrs.translatedLanguage, pages: attrs.pages}', json_response)
+            '[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]', json_response)
 
         def __make_chapter(chapter_info):
-            return Chapter(**chapter_info)
+            return Chapter(*chapter_info)
 
         chapters_list = list(map(__make_chapter, chapters_data))
 

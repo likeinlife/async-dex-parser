@@ -1,10 +1,9 @@
 import re
 
-from .parse_title import Chapter, ParseTitle
-
-from .parse_title_name import ParseTitleName
-
 from app import common
+
+from .parse_title import Chapter, ParseTitle
+from .parse_title_name import ParseTitleName
 
 
 def get_title(identificator: str):

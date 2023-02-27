@@ -1,7 +1,8 @@
+import json
 import ssl
 import urllib.request
+
 import jmespath  # type: ignore
-import json
 
 from app import headers
 

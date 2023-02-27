@@ -1,24 +1,23 @@
 import asyncio
-from pathlib import Path
 import textwrap
+from pathlib import Path
 from typing import NamedTuple
 
 import aiohttp
 import jmespath  # type: ignore
 
-from app import common
-from app import headers
+from app import common, headers
 
 from .image_downloader import ImageDownloader
 
 
 class Chapter(NamedTuple):
     id: str
-    manga_title: str
+    manga_name: str
     chapter_number: str
-    name: str
-    lan: str
-    pages: int
+    chapter_name: str
+    language: str
+    pages_number: int
 
 
 class ParseChapter:
@@ -50,9 +49,9 @@ class ParseChapter:
             except KeyError:
                 raise KeyError('There is no baseUrl key in json response. Maybe you accidently typed title_id?')
             except Exception as e:
-                raise Exception(f'{e}. Somethig went wrong')
+                raise Exception(f'{e}. Something went wrong')
 
-    def __makeURLFromImageName(self, base_url, ch_hash, image_name: str) -> str:
+    def __makeURLFromImageName(self, base_url: str, ch_hash: str, image_name: str) -> str:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
     async def __getChapter(self) -> Chapter:
@@ -70,12 +69,12 @@ class ParseChapter:
 
     def __repr__(self) -> str:
         headers = ('manga name', 'chapter name', 'id', 'pages')
-        manga_name = textwrap.shorten(self.chapter_info.manga_title, 30)
-        if self.chapter_info.name:
-            chapter_name = textwrap.shorten(self.chapter_info.name, 30)
+        manga_name = textwrap.shorten(self.chapter_info.manga_name, 30)
+        if self.chapter_info.chapter_name:
+            chapter_name = textwrap.shorten(self.chapter_info.chapter_name, 30)
         else:
             chapter_name = ""
 
-        content = ((manga_name, chapter_name, self.chapter_info.id, self.chapter_info.pages),)
+        content = ((manga_name, chapter_name, self.chapter_info.id, self.chapter_info.pages_number),)
         table = common.basic_table(content, headers)
         return table

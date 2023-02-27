@@ -5,9 +5,9 @@ from pathlib import Path
 
 from tabulate import tabulate  # type: ignore
 
-from .title_actions import get_title
-
 from app import common
+
+from .title_actions import get_title
 
 BASEPATH = Path(__file__).parent.parent / 'favs.json'
 

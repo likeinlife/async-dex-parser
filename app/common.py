@@ -1,5 +1,6 @@
 import re
 from functools import partial
+
 from tabulate import tabulate  # type: ignore
 
 id_pattern = '([a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12})'
@@ -21,3 +22,9 @@ def validate_id(identificator: str) -> str | bool:
         return identificator
     else:
         return False
+
+
+class Words:
+    STOP = 'Stopping'
+    INVALID_NUMBER = 'Invalid number'
+    NO_CHAPTERS = 'There are no chapters'

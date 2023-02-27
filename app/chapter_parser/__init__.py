@@ -1,7 +1,8 @@
-from .parse_chapter import Chapter, ParseChapter
 import re
 
 from app import common
+
+from .parse_chapter import Chapter, ParseChapter
 
 
 def get_chapter(identificator: str):

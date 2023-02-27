@@ -1,12 +1,14 @@
 import asyncio
 import re
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
-import aiohttp
-import aiofiles  # type: ignore
-import tqdm.asyncio  # type: ignore
-import time
 
+import aiofiles  # type: ignore
+import aiohttp
+import tqdm.asyncio  # type: ignore
+
+from app import common
 from app.config import config
 
 if TYPE_CHECKING:
@@ -16,52 +18,56 @@ if TYPE_CHECKING:
 class ImageDownloader:
 
     def __init__(self, chapter: "ParseChapter", directory: Path = Path(), folder_name: str = "") -> None:
-        if folder_name:
-            self.__path_to_dir = directory / folder_name
-        else:
-            if title := chapter.chapter_info.name:
-                folder_name = f'{chapter.chapter_info.chapter_number} - {self.__cleanName(title)}'
-            else:
-                folder_name = f'{chapter.chapter_info.chapter_number}'
-            self.__path_to_dir = directory / folder_name
 
         self.chapter = chapter
+        self.__path_to_dir = self.__makePath(directory, folder_name)
         self.__makeDir()
         self.__override = False
 
         asyncio.run(self.__downloadAllImages())
 
+    def __makePath(self, directory: Path, folder_name: str):
+        if not folder_name:
+            if title := self.chapter.chapter_info.chapter_name:
+                folder_name = f'{self.chapter.chapter_info.chapter_number} - {self.__cleanName(title)}'
+            else:
+                folder_name = f'{self.chapter.chapter_info.chapter_number}'
+        return directory / folder_name
+
     @staticmethod
     def __cleanName(name: str):
+        """Delete invalid symbols for Windows file name"""
         return re.sub(r'[;<>|/\:"?]', '', name)
 
     def __makeDir(self):
         if not self.__path_to_dir.exists():
             self.__path_to_dir.mkdir()
 
-    def __checkOverride(self, file: Path):
-        """Checks if already exists"""
+    def __checkOverride(self, path_to_object: Path):
+        """Checks if files inside directory already exists"""
         if self.__override:
             return
-        table = {'y': True, 'n': False}
-        if file.exists():
-            override = input('Файл уже существует. Перезаписать? y/n ')
-            if table.get(override):
+        if path_to_object.exists():
+            override = input(f'`{path_to_object}` already exists. Override? y/n ')
+            if common.true_table.get(override):
                 self.__override = True
                 return
-            exit('Отменено.')
+            exit('Stopping')
 
     @staticmethod
     async def __getImage(session: aiohttp.ClientSession, image_url: str):
+        """Download image from internet"""
         async with session.get(image_url) as response:
             content = await response.read()
             return content
 
     async def __saveImage(self, content: bytes, path_to_file: Path):
+        """Save image in local storage"""
         async with aiofiles.open(path_to_file, 'wb') as file_obj:
             await file_obj.write(content)
 
     async def __downloadImage(self, semaphore: asyncio.Semaphore, image_url: str, page_number: int):
+        """Download image from internet, then save it in local storage"""
         async with semaphore:
             this_try = 0
             file_name = str(page_number).rjust(3, "0") + '.png'
