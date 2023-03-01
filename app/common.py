@@ -11,7 +11,7 @@ basic_table = partial(tabulate, tablefmt='rounded_outline', stralign='center', n
 
 
 def get_path(path: str) -> Path:
-    if path.replace(' ', '') == '':
+    if path.replace(' ', '.') == '':
         return Path()
     return Path(path)
 
