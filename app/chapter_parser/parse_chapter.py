@@ -7,8 +7,11 @@ import aiohttp
 import jmespath  # type: ignore
 
 from app import common, headers
+from app.logger_setup import get_logger
 
 from .image_downloader import ImageDownloader
+
+logger = get_logger(__name__)
 
 
 class Chapter(NamedTuple):
@@ -28,6 +31,7 @@ class ParseChapter:
         self.chapter_info, self.pages_urls = asyncio.run(self.__collectInfo())
 
     def downloadChapter(self, directory: Path = Path(), folder_name: str = ""):
+        logger.info(f'Download chapter {self.chapter_info}')
         ImageDownloader(self, directory, folder_name)
 
     async def __collectInfo(self) -> tuple[Chapter, list]:

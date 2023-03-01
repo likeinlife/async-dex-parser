@@ -12,6 +12,10 @@ import jmespath  # type: ignore
 from app.chapter_parser import get_chapter
 from app.headers import title_headers
 from app.config import config
+from app.logger_setup import get_logger
+from .select_chapters import SelectChapters
+
+logger = get_logger(__name__)
 
 
 class Chapter(NamedTuple):
@@ -19,64 +23,6 @@ class Chapter(NamedTuple):
     chapter: str
     language: str
     pages: int
-
-
-class SelectChapters:
-    """Select chapter ranges like `1, 2, 2-10, 20-30, ~8`"""
-
-    def __init__(self, chapters_select: str) -> None:
-        self.input = chapters_select.replace(' ', '').split(',')
-        self.include, self.exclude = self.__make_lists()
-
-    def __contains__(self, number: str) -> bool:
-        """Check if this chapter in range"""
-        include_flag = any(map(lambda x: self.__check_number(x, number), self.include))
-        exclude_flag = not any(map(lambda x: self.__check_number(x, number), self.exclude))
-        if include_flag and exclude_flag:
-            return True
-        return False
-
-    def __make_lists(self):
-        include = []
-        exclude = []
-        for item in self.input:
-            if '~' in item:
-                exclude.append(self.__make_range(item))
-            else:
-                include.append(self.__make_range(item))
-        return include, exclude
-
-    def __make_range(self, number: str):
-        number = number.replace('~', '')
-        if number.isnumeric():
-            return float(number)
-        elif '-' in number:
-            return self.__get_start_and_end(number)
-        else:
-            exit(f'Something went wrong with chapter range {number}')
-
-    def __get_start_and_end(self, chapter_range: str) -> Tuple[float, float]:
-        """Transform '1-20' to tuple(1, 20)"""
-        start, end = list(map(self.__make_range, chapter_range.split('-')))
-
-        if isinstance(start, float) and isinstance(end, float):
-            return start, end
-        else:
-            exit(f'Something went wrong with chapter range {chapter_range}')
-
-    @staticmethod
-    def __check_number(chapter_range: float | Tuple[float, float], value_to_check: str) -> bool:
-        """Check number if it is in :chapter_range:"""
-        if isinstance(chapter_range, float):
-            if float(value_to_check) == chapter_range:
-                return True
-        if isinstance(chapter_range, tuple):
-            if chapter_range[0] <= float(value_to_check) <= chapter_range[1]:
-                return True
-        return False
-
-    def __repr__(self) -> str:
-        return f'{self.include}; excluding {self.exclude}'
 
 
 class ParseTitle:
@@ -93,26 +39,35 @@ class ParseTitle:
             return
         self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
 
-    def selectiveDownload(self, chapter_range: str, lang: str = 'en', directory: Path = Path()):
+    def selectiveDownload(self, chapter_range: str, directory: Path = Path()):
+        """Download chapters range
+        Args:
+            chapter_range: `10-24, 12, ~13`
+        """
+        logger.info(f'Downloading chapters range {chapter_range} from {self.name}')
+
         selected_chapters = SelectChapters(chapter_range)
         directory_for_title = self.__makeDirectoryName(directory)
         if not directory_for_title.exists():
             directory_for_title.mkdir()
         for chapter_info in self.__chapters:
-            if chapter_info.language == lang and chapter_info.chapter in selected_chapters:
+            if chapter_info.chapter in selected_chapters:
                 chapter = get_chapter(chapter_info.id)
                 chapter.downloadChapter(directory=directory_for_title)
 
-    def massDownload(self, lang: str = 'en', directory: Path = Path()):
+    def massDownload(self, directory: Path = Path()):
+        """Download all chapters from title"""
+        logger.info(f'Downloading all chapters from manga {self.name}')
+
         directory_for_title = self.__makeDirectoryName(directory)
         if not directory_for_title.exists():
             directory_for_title.mkdir()
         for chapter_info in self.__chapters:
-            if chapter_info.language == lang:
-                chapter = get_chapter(chapter_info.id)
-                chapter.downloadChapter(directory=directory_for_title)
+            chapter = get_chapter(chapter_info.id)
+            chapter.downloadChapter(directory=directory_for_title)
 
     def __getTitleName(self) -> str:
+        """Get manga name"""
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
@@ -138,7 +93,6 @@ class ParseTitle:
         return name
 
     def __getJsonWithChapters(self, offset: int = 0):
-
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
@@ -182,7 +136,8 @@ class ParseTitle:
         return chapters_list
 
     def __makeDirectoryName(self, directory):
-        short_name = textwrap.shorten(self.name, config.NAME_MAX_LENGTH, placeholder='...')
+        logger.info(f'Creating directory {directory}')
+        short_name = textwrap.shorten(self.name, config.NAME_MAX_LENGTH, placeholder='')
         directory_for_title = directory / short_name
         return directory_for_title
 

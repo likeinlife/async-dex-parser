@@ -10,9 +10,12 @@ import tqdm.asyncio  # type: ignore
 
 from app import common
 from app.config import config
+from app.logger_setup import get_logger
 
 if TYPE_CHECKING:
     from .parse_chapter import ParseChapter
+
+logger = get_logger(__name__)
 
 
 class ImageDownloader:
@@ -27,6 +30,7 @@ class ImageDownloader:
         asyncio.run(self.__downloadAllImages())
 
     def __makePath(self, directory: Path, folder_name: str):
+        logger.debug(f'Making path of {directory=} and {folder_name=}')
         if not folder_name:
             if title := self.chapter.chapter_info.chapter_name:
                 folder_name = f'{self.chapter.chapter_info.chapter_number} - {self.__cleanName(title)}'
@@ -51,24 +55,26 @@ class ImageDownloader:
             override = input(f'`{path_to_object}` already exists. Override? y/n ')
             if common.true_table.get(override):
                 self.__override = True
-                return
-            exit('Stopping')
+            return
 
     @staticmethod
     async def __getImage(session: aiohttp.ClientSession, image_url: str):
         """Download image from internet"""
         async with session.get(image_url) as response:
+            logger.debug(f'Get image from internet image {image_url}')
             content = await response.read()
             return content
 
     async def __saveImage(self, content: bytes, path_to_file: Path):
         """Save image in local storage"""
         async with aiofiles.open(path_to_file, 'wb') as file_obj:
+            logger.debug(f'Saving image to local files {path_to_file}')
             await file_obj.write(content)
 
     async def __downloadImage(self, semaphore: asyncio.Semaphore, image_url: str, page_number: int):
         """Download image from internet, then save it in local storage"""
         async with semaphore:
+            logger.info(f'Downloading image {page_number} from {image_url}')
             this_try = 0
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
@@ -83,11 +89,13 @@ class ImageDownloader:
                     this_try += 1
                     time.sleep(config.SLEEP_BEFORE_RECONNECTION)
                     if this_try >= config.TRIES_NUMBER:
+                        logger.error(f'Cant connect to server after {config.TRIES_NUMBER} attemps')
                         raise aiohttp.ServerConnectionError(
                             'Server is dead. Try discrease semaphore in config and get a chance in a few minutes')
         await self.__saveImage(content, path_to_file)
 
     async def __downloadAllImages(self) -> None:
+        logger.info(f'Downloading all image from title {self.chapter.chapter_info.manga_name}')
         semaphore = asyncio.Semaphore(config.SEMAPHORE)
         tasks = [
             asyncio.create_task(self.__downloadImage(semaphore, image_url, number))

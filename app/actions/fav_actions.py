@@ -5,19 +5,23 @@ from pathlib import Path
 from tabulate import tabulate  # type: ignore
 
 from app import common
+from app.logger_setup import get_logger
 
-from .title_actions import get_title
+from .title_actions import title_actions
 
 BASEPATH = Path(__file__).parent.parent / 'favs.json'
+logger = get_logger(__name__)
 
 
 def check_if_favourite_list_empty():
     if BASEPATH.exists():
+        logger.info(f'{BASEPATH} already exists')
         return False
     else:
         with open(BASEPATH, 'w', encoding='UTF-8') as file_obj:
             json.dump([], file_obj, ensure_ascii=False, indent=4)
         print('Favourite list does not exists. Just made one')
+        logger.info(f'{BASEPATH} created')
 
     return True
 
@@ -40,13 +44,14 @@ def see_favourite_list(args: argparse.Namespace):
     if not common.true_table.get(details):
         return
     while True:
-        choosen_number = input('title number? >> ')
+        choosen_number = input('Enter number? >> ')
         if not choosen_number.isnumeric():
             exit('Stopping')
         if 0 <= int(choosen_number) <= len(favs) - 1:
             id = favs[int(choosen_number)]['id']
-            own_namepsace = argparse.Namespace(id=id, language=args.language, folder_name="", directory=Path())
-            return get_title(own_namepsace)
+            own_namepsace = argparse.Namespace(id=id, language=args.language, folder_name="", directory="")
+            logger.info(f'Passing from fav_actions to title_actions {own_namepsace}')
+            return title_actions(own_namepsace)
         print('There is no item with that number')
 
 
@@ -65,6 +70,7 @@ def delete_favourite_list_item(args: argparse.Namespace):
     with open(BASEPATH, 'r') as file_obj:
         favourites: list = json.load(file_obj)
         deleted: dict[str, str] = favourites.pop(args.num)
+        logger.info(f'Deleting {deleted.get("name")} with {deleted.get("id")}')
 
     with open(BASEPATH, 'w') as file_obj:
         json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
@@ -73,6 +79,7 @@ def delete_favourite_list_item(args: argparse.Namespace):
 
 
 def add_favourite_list_item(args: argparse.Namespace):
+    logger.info(f'Adding to fav list {args.name} with {args.id}')
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
     title = {'name': args.name, 'id': id}

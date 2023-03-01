@@ -4,7 +4,9 @@ import textwrap
 from app import common, title_parser
 from app.common import Words
 from app.config import config
-from pathlib import Path
+from app.logger_setup import get_logger
+
+logger = get_logger(__name__)
 
 
 def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
@@ -28,18 +30,7 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
         confirm = input(f'You are going to download chapters {choosen_range} from {title.name}. y/n >> ')
         if not common.true_table.get(confirm):
             exit(Words.STOP)
-        return title.selectiveDownload(choosen_range, args.language, common.get_path(args.directory))
-
-
-def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
-    founded = title_parser.get_title(identificator, args.language)
-    if isinstance(founded, title_parser.ParseTitle):
-        return founded
-    else:
-        if len(founded) == 1:
-            return title_parser.ParseTitle(founded[0]['id'], args.language)  # type: ignore
-        else:
-            return choose_title_by_name(founded, args)
+        return title.selectiveDownload(choosen_range, common.get_path(args.directory))
 
 
 def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Namespace):
@@ -61,6 +52,11 @@ def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Name
 
 
 def get_identificator(args: argparse.Namespace):
+    """args.id might be manga name or id
+    case name: (Test, manga, name) - tuple
+    case id: 11a98sdj9a - str
+    case name with one word: (Test,) - tuple
+    """
     if isinstance(args.id, str):
         return args.id
     else:
@@ -74,7 +70,30 @@ def add_to_favourite(title: title_parser.ParseTitle, args: argparse.Namespace):
         add_favourite_list_item(own_namespace)
 
 
-def get_title(args: argparse.Namespace):
+def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):
+    chapter_number = title
+    approval = input(f'You want to download all chapters? Title - {title.name}, chapters - {chapter_number}\n'\
+                     f'y/n >> ')
+    if common.true_table.get(approval):
+        title.massDownload(directory=common.get_path(args.directory))
+    else:
+        exit('Stopping')
+
+
+def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
+    """Find title(s) by identificator: url, id, name"""
+    founded = title_parser.get_title(identificator, args.language)
+    if isinstance(founded, title_parser.ParseTitle):
+        return founded
+    else:
+        if len(founded) == 1:
+            return title_parser.ParseTitle(founded[0]['id'], args.language)  # type: ignore
+        else:
+            return choose_title_by_name(founded, args)
+
+
+def title_actions(args: argparse.Namespace):
+    """Entry point"""
     identificator = get_identificator(args)
     title = find_title(identificator, args)
 
@@ -87,13 +106,3 @@ def get_title(args: argparse.Namespace):
             return
         print(f'{title.name: ^65}')
         print_chapters(title, args)
-
-
-def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):
-    chapter_number = title
-    approval = input(f'You want to download all chapters? Title - {title.name}, chapters - {chapter_number}\n'\
-                     f'y/n >> ')
-    if common.true_table.get(approval):
-        title.massDownload(lang=args.language, directory=common.get_path(args.directory))
-    else:
-        exit('Stopping')
