@@ -28,7 +28,7 @@ def parse_args():
 
     chapter = subparsers.add_parser('chapter', help='Download chapter')
     chapter.add_argument('id', type=str, help='Chapter id or url')
-    chapter.add_argument('--directory', '-d', help='Directory to save', default=Path())
+    chapter.add_argument('--directory', '-d', help='Directory to save', default="")
     chapter.add_argument('--folder_name', '-n', help='Folder to save', default="")
     chapter.set_defaults(func=chapter_actions.get_chapter)
 
@@ -40,7 +40,7 @@ def parse_args():
                        '-m',
                        help='Download all chapters. By default download all en chapters',
                        action='store_true')
-    title.add_argument('--directory', '-d', help='Directory for save', default=Path())
+    title.add_argument('--directory', '-d', help='Directory for save', default="")
     title.add_argument('--folder-name', '-n', help='Folder to save', default="")
     title.set_defaults(func=title_actions.get_title)
 

@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from app import chapter_parser
 
@@ -11,4 +12,4 @@ def get_chapter(args: argparse.Namespace):
     print(chapter)
     download = input('download? y/n ')
     if table.get(download):
-        chapter.downloadChapter(args.directory, args.folder_name)
+        chapter.downloadChapter(Path(args.directory), args.folder_name)
