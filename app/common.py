@@ -28,3 +28,6 @@ class Words:
     STOP = 'Stopping'
     INVALID_NUMBER = 'Invalid number'
     NO_CHAPTERS = 'There are no chapters'
+    CHAPTER_SELECT_HELP = '''Example: 1, 2, 4-10, ~2-7, ~8. \nIt selects 1, 9, 10 chapters.
+1 | 1-10 - Include
+~1 | ~1-10 - Exclude'''

@@ -5,46 +5,43 @@ from app import common, title_parser
 from app.common import Words
 from app.config import config
 
-from .chapter_actions import get_chapter
 
-
-def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespace):
-    if len(chapters) == 0:
+def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
+    if len(title.chapters) == 0:
         exit(Words.NO_CHAPTERS)
 
     headers = ('chapter', 'language', 'pages')
-    content = ((chapter.chapter, chapter.language, chapter.pages) for chapter in chapters)
+    content = ((chapter.chapter, chapter.language, chapter.pages) for chapter in title.chapters)
 
     table = common.basic_table(content, headers=headers)
     print(table)
 
-    download = input('Download chapter? y/n >> ')
+    download = input('Download chapter(s)? y/n >> ')
     if not common.true_table.get(download):
         return
     while True:
-        choosen_number = input('Chapter number? >> ')
-        if not choosen_number.isnumeric():
+        choosen_range = input('Enter chapter(s) `.h for help` >> ')
+        if choosen_range == '.h':
+            print(Words.CHAPTER_SELECT_HELP)
+            continue
+        confirm = input(f'You are going to download chapters {choosen_range} from {title.name}')
+        if not common.true_table.get(confirm):
             exit(Words.STOP)
-        if 0 <= int(choosen_number) <= len(chapters) - 1:
-            own_namespace = argparse.Namespace(id=chapters[int(choosen_number)].id,
-                                               folder_name=args.folder_name,
-                                               directory=args.directory)
-            return get_chapter(own_namespace)
-        print(Words.INVALID_NUMBER)
+        return title.selectiveDownload(choosen_range, args.language, args.directory)
 
 
-def find_title(identificator: str) -> title_parser.ParseTitle:
-    founded = title_parser.get_title(identificator)
+def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
+    founded = title_parser.get_title(identificator, args.language)
     if isinstance(founded, title_parser.ParseTitle):
         return founded
     else:
         if len(founded) == 1:
-            return title_parser.ParseTitle(founded[0]['id'])
+            return title_parser.ParseTitle(founded[0]['id'], args.language)  # type: ignore
         else:
-            return choose_title_by_name(founded)
+            return choose_title_by_name(founded, args.language)
 
 
-def choose_title_by_name(title: title_parser.ParseTitleName):
+def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Namespace):
     """If found several titles by this name"""
     print('There are more than 1 title found by this name')
     headers = ('name', 'id')
@@ -58,7 +55,7 @@ def choose_title_by_name(title: title_parser.ParseTitleName):
         if not choosen_number.isnumeric():
             exit(Words.STOP)
         if 0 <= int(choosen_number) <= len(title.titles) - 1:
-            return title_parser.ParseTitle(title.titles[int(choosen_number)]['id'])
+            return title_parser.ParseTitle(title.titles[int(choosen_number)]['id'], args.language)
         print(Words.INVALID_NUMBER)
 
 
@@ -69,39 +66,31 @@ def get_identificator(args: argparse.Namespace):
         return " ".join(args.id)
 
 
-def filter_chapters_by_language(title: title_parser.ParseTitle, language: str) -> list[title_parser.Chapter]:
-    if language == 'any':
-        return title.chapters
-    return list(filter(lambda chapter: chapter.language == language, title.chapters))
-
-
 def add_to_favourite(title: title_parser.ParseTitle, args: argparse.Namespace):
     if 'add_fav' in args and args.add_fav:
         from .fav_actions import add_favourite_list_item
-        own_namespace = argparse.Namespace(name=title.title_name, id=title.id)
+        own_namespace = argparse.Namespace(name=title.name, id=title.id)
         add_favourite_list_item(own_namespace)
 
 
 def get_title(args: argparse.Namespace):
     identificator = get_identificator(args)
-    title = find_title(identificator)
-
-    chapters = filter_chapters_by_language(title, args.language)
+    title = find_title(identificator, args)
 
     add_to_favourite(title, args)
     if 'mass' in args and args.mass:
         title_mass_download(title, args)
     else:
-        if len(chapters) == 0:
+        if len(title.chapters) == 0:
             print(f'There are no chapters with {args.language}. Try `-l any`')
             return
-        print(f'{title.title_name: ^65}')
-        print_chapters(chapters, args)
+        print(f'{title.name: ^65}')
+        print_chapters(title, args)
 
 
 def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):
-    chapter_number = len(filter_chapters_by_language(title, args.language))
-    approval = input(f'You want to download all chapters? Title - {title.title_name}, chapters - {chapter_number}\n'\
+    chapter_number = title
+    approval = input(f'You want to download all chapters? Title - {title.name}, chapters - {chapter_number}\n'\
                      f'y/n >> ')
     if common.true_table.get(approval):
         title.massDownload(lang=args.language, directory=args.directory)
