@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 from functools import partial
 
@@ -7,6 +8,12 @@ id_pattern = '([a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA
 true_table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
 basic_table = partial(tabulate, tablefmt='rounded_outline', stralign='center', numalign='left')
+
+
+def get_path(path: str) -> Path:
+    if path.replace(' ', '') == '':
+        return Path()
+    return Path(path)
 
 
 def get_id_from_url(url: str, search_for: str) -> str | bool:

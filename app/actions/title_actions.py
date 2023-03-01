@@ -28,7 +28,7 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
         confirm = input(f'You are going to download chapters {choosen_range} from {title.name}. y/n >> ')
         if not common.true_table.get(confirm):
             exit(Words.STOP)
-        return title.selectiveDownload(choosen_range, args.language, Path(args.directory))
+        return title.selectiveDownload(choosen_range, args.language, common.get_path(args.directory))
 
 
 def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
@@ -94,6 +94,6 @@ def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace
     approval = input(f'You want to download all chapters? Title - {title.name}, chapters - {chapter_number}\n'\
                      f'y/n >> ')
     if common.true_table.get(approval):
-        title.massDownload(lang=args.language, directory=Path(args.directory))
+        title.massDownload(lang=args.language, directory=common.get_path(args.directory))
     else:
         exit('Stopping')
