@@ -4,6 +4,8 @@ import textwrap
 import urllib.request
 from pathlib import Path
 from typing import NamedTuple, Tuple
+import http.client
+import time
 
 import jmespath  # type: ignore
 
@@ -119,7 +121,17 @@ class ParseTitle:
         for key, value in title_headers.items():
             req.add_header(key, value)
 
-        json_response = json.load(urllib.request.urlopen(req, context=ctx))
+        current_reconnect = 0
+        while True:
+            try:
+                json_response = json.load(urllib.request.urlopen(req, context=ctx))
+                break
+            except http.client.IncompleteRead as e:
+                print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
+                current_reconnect += 1
+                time.sleep(config.SLEEP_BEFORE_RECONNECTION)
+                if current_reconnect >= config.TRIES_NUMBER:
+                    raise e
 
         name = jmespath.search('data.attributes.title.* | [0]', json_response)
 
@@ -138,7 +150,17 @@ class ParseTitle:
         for key, value in title_headers.items():
             req.add_header(key, value)
 
-        json_response = json.load(urllib.request.urlopen(req, context=ctx))
+        current_reconnect = 0
+        while True:
+            try:
+                json_response = json.load(urllib.request.urlopen(req, context=ctx))
+                break
+            except http.client.IncompleteRead as e:
+                print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
+                current_reconnect += 1
+                time.sleep(config.SLEEP_BEFORE_RECONNECTION)
+                if current_reconnect >= config.TRIES_NUMBER:
+                    raise e
 
         content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
