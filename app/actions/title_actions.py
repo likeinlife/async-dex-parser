@@ -38,7 +38,7 @@ def find_title(identificator: str, args: argparse.Namespace) -> title_parser.Par
         if len(founded) == 1:
             return title_parser.ParseTitle(founded[0]['id'], args.language)  # type: ignore
         else:
-            return choose_title_by_name(founded, args.language)
+            return choose_title_by_name(founded, args)
 
 
 def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Namespace):
