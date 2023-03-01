@@ -7,8 +7,9 @@ from typing import NamedTuple
 
 import jmespath  # type: ignore
 
-from ..chapter_parser import get_chapter
-from ..headers import title_headers
+from app.chapter_parser import get_chapter
+from app.headers import title_headers
+from app.config import config
 
 
 class Chapter(NamedTuple):
@@ -84,7 +85,8 @@ class ParseTitle:
         return chapters_list
 
     def __makeDirectoryName(self, directory):
-        directory_for_title = directory / textwrap.shorten(self.title_name, 20)
+        short_name = textwrap.shorten(self.title_name, config.NAME_MAX_LENGTH, placeholder='...')
+        directory_for_title = directory / short_name
         return directory_for_title
 
     @property

@@ -3,6 +3,7 @@ import textwrap
 
 from app import common, title_parser
 from app.common import Words
+from app.config import config
 
 from .chapter_actions import get_chapter
 
@@ -11,10 +12,10 @@ def print_chapters(chapters: list[title_parser.Chapter], args: argparse.Namespac
     if len(chapters) == 0:
         exit(Words.NO_CHAPTERS)
 
-    headers = ('chapter', 'language', 'id')
-    content = ((chapter.chapter, chapter.language, chapter.id) for chapter in chapters)
+    headers = ('chapter', 'language', 'pages')
+    content = ((chapter.chapter, chapter.language, chapter.pages) for chapter in chapters)
 
-    table = common.basic_table(content, headers=headers, showindex='always')
+    table = common.basic_table(content, headers=headers)
     print(table)
 
     download = input('Download chapter? y/n >> ')
@@ -47,7 +48,8 @@ def choose_title_by_name(title: title_parser.ParseTitleName):
     """If found several titles by this name"""
     print('There are more than 1 title found by this name')
     headers = ('name', 'id')
-    content = ((textwrap.shorten(title['title'], 30), title['id']) for title in title.titles)
+    content = ((textwrap.shorten(title['title'], config.NAME_MAX_LENGTH, placeholder='...'), title['id'])
+               for title in title.titles)
     table = common.basic_table(content, headers, showindex='always')
 
     print(table)

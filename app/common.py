@@ -6,7 +6,7 @@ from tabulate import tabulate  # type: ignore
 id_pattern = '([a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12})'
 true_table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
 
-basic_table = partial(tabulate, tablefmt='rounded_outline', stralign='center', numalign='right')
+basic_table = partial(tabulate, tablefmt='rounded_outline', stralign='center', numalign='left')
 
 
 def get_id_from_url(url: str, search_for: str) -> str | bool:
