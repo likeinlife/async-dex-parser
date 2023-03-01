@@ -25,7 +25,7 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
         if choosen_range == '.h':
             print(Words.CHAPTER_SELECT_HELP)
             continue
-        confirm = input(f'You are going to download chapters {choosen_range} from {title.name}')
+        confirm = input(f'You are going to download chapters {choosen_range} from {title.name}. y/n >> ')
         if not common.true_table.get(confirm):
             exit(Words.STOP)
         return title.selectiveDownload(choosen_range, args.language, Path(args.directory))
