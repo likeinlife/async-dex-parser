@@ -81,7 +81,7 @@ def delete_favourite_list_item(args: argparse.Namespace):
 
 
 def add_favourite_list_item(args: argparse.Namespace):
-    short_name = textwrap.shorten(args.name, config.NAME_MAX_LENGTH)
+    short_name = textwrap.shorten(args.name, config.NAME_MAX_LENGTH, placeholder='...')
     logger.info(f'Adding to fav list {short_name} with {args.id}')
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
