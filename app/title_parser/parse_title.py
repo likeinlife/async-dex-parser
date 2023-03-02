@@ -86,9 +86,11 @@ class ParseTitle:
                 current_reconnect += 1
                 time.sleep(config.SLEEP_BEFORE_RECONNECTION)
                 if current_reconnect >= config.TRIES_NUMBER:
-                    raise e
+                    logger.error(e)
+                    exit('Server disconnected')
 
         name = jmespath.search('data.attributes.title.* | [0]', json_response)
+        logger.debug(f'Got name from {self.id}, {name}')
 
         return name
 
@@ -121,6 +123,8 @@ class ParseTitle:
 
         if total > limit and offset + limit < total:
             content.extend(self.__getJsonWithChapters(offset + limit))
+
+        logger.debug(f'Got chapters from {self.id=}')
 
         return content
 
