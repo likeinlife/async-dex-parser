@@ -7,7 +7,9 @@ class Config:
     TRIES_NUMBER = 3
     SLEEP_BEFORE_RECONNECTION = 5  # seconds
     NAME_MAX_LENGTH = 40
-    LOGGING_LEVEL = logging.DEBUG
+    LOGGING_LEVEL = logging.INFO
+    LOGS_MAX_SIZE = 256  # in bytes
+    ENABLE_STREAM_HANDLER = False  # print logs to console
 
 
 config = Config()
