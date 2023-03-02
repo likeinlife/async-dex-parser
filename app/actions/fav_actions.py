@@ -96,7 +96,8 @@ def add_favourite_list_item(args: argparse.Namespace):
     with open(BASEPATH, 'r') as file_obj:
         favourites: list = json.load(file_obj)
         if title in favourites:
-            print('Title already in favourites')
+            logger.debug(f'{short_name} already in favourite list')
+            print(f'{short_name} already in favourites')
             return
         else:
             favourites.append(title)
