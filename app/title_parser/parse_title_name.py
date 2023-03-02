@@ -46,7 +46,7 @@ class ParseTitleName:
                     exit('Server disconnected')
 
         content = jmespath.search('data[].{id:id, title: attributes.title.* | [0]}', json_response)
-        logger.debug(f'Got info by {self.name=}: {self.titles}')
+        logger.debug(f'Got info by {self.name=}: {content}')
 
         return content
 
