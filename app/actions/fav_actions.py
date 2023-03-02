@@ -1,11 +1,13 @@
 import argparse
 import json
 from pathlib import Path
+import textwrap
 
 from tabulate import tabulate  # type: ignore
 
 from app import common
 from app.logger_setup import get_logger
+from app.config import config
 
 from .title_actions import title_actions
 
@@ -79,7 +81,8 @@ def delete_favourite_list_item(args: argparse.Namespace):
 
 
 def add_favourite_list_item(args: argparse.Namespace):
-    logger.info(f'Adding to fav list {args.name} with {args.id}')
+    short_name = textwrap.shorten(args.name, config.NAME_MAX_LENGTH)
+    logger.info(f'Adding to fav list {short_name} with {args.id}')
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
     title = {'name': args.name, 'id': id}
