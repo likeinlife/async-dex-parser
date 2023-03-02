@@ -85,7 +85,7 @@ def add_favourite_list_item(args: argparse.Namespace):
     logger.info(f'Adding to fav list {short_name} with {args.id}')
     if not (id := common.validate_id(args.id)):
         exit('Invalid id')
-    title = {'name': args.name, 'id': id}
+    title = {'name': short_name, 'id': id}
 
     if check_if_favourite_list_empty():
         with open(BASEPATH, 'w') as file_obj:
