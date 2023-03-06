@@ -1,5 +1,6 @@
 import argparse
 import textwrap
+import itertools
 
 from app import common, title_parser
 from app.common import Words
@@ -9,15 +10,37 @@ from app.logger_setup import get_logger
 logger = get_logger(__name__)
 
 
+class MakeChaptersTable:
+
+    def __init__(self, title: title_parser.ParseTitle, args: argparse.Namespace) -> None:
+        self.title = title
+        self.args = args
+        self.content, self.headers = self.__check_option_cut()
+        self.__check_option_show()
+
+    def __check_option_show(self):
+        if 'cut_results' in self.args and self.args.cut_results:
+            self.content = itertools.islice(self.content, self.args.cut_results)
+
+    def __check_option_cut(self):
+        if 'show_id' in self.args and self.args.show_id:
+            headers = ('chapter', 'language', 'pages', 'id')
+            content = [(ch.chapter, ch.language, ch.pages, ch.id) for ch in self.title.chapters]
+        else:
+            headers = ('chapter', 'language', 'pages')  # type: ignore
+            content = [(ch.chapter, ch.language, ch.pages) for ch in self.title.chapters]
+
+        return content, headers
+
+    def __str__(self):
+        return common.basic_table(self.content, self.headers)
+
+
 def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
     if len(title.chapters) == 0:
         exit(Words.NO_CHAPTERS)
 
-    headers = ('chapter', 'language', 'pages')
-    content = ((chapter.chapter, chapter.language, chapter.pages) for chapter in title.chapters)
-
-    table = common.basic_table(content, headers=headers)
-    print(table)
+    print(MakeChaptersTable(title, args))
 
     download = input('Download chapter(s)? y/n >> ')
     if not common.true_table.get(download):
