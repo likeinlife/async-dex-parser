@@ -27,6 +27,7 @@ class ParseChapter:
     """Parses dex chapter via id"""
 
     def __init__(self, chapter_id: str):
+        logger.debug(f'Parsing {chapter_id=}')
         self._chapter_id: str = chapter_id
         self.chapter_info, self.pages_urls = asyncio.run(self.__collectInfo())
 
@@ -35,20 +36,22 @@ class ParseChapter:
         ImageDownloader(self, directory, folder_name)
 
     async def __collectInfo(self) -> tuple[Chapter, list]:
+        logger.debug('Collecting info about chapter')
         tasks = await asyncio.gather(self.__getChapter(), self.__getPages())
         return tasks
 
     async def __getPages(self) -> list:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False),
+                                         headers=headers.parse_chapter_headers) as session:
             try:
-                response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}',
-                                             params=headers.parse_chapter_params,
-                                             headers=headers.parse_chapter_headers)
+                response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}')
                 json_response = await response.json()
                 image_names = jmespath.search("chapter.data[*]", json_response)
                 base_url = json_response['baseUrl']
                 ch_hash = json_response['chapter']['hash']
                 image_urls = list(map(lambda x: self.__makeURLFromImageName(base_url, ch_hash, x), image_names))
+
+                logger.debug('Got chapter pages')
                 return image_urls
             except KeyError:
                 raise KeyError('There is no baseUrl key in json response. Maybe you accidently typed title_id?')
@@ -69,6 +72,8 @@ class ParseChapter:
 
         parsed_json = jmespath.search("data.attributes.[chapter, title, translatedLanguage, pages]", json_response)
         title_name = jmespath.search("data.relationships[?type=='manga'].attributes.title.* | [0] | [0]", json_response)
+
+        logger.debug('Got chapter info')
         return Chapter(self._chapter_id, title_name, *parsed_json)
 
     def __repr__(self) -> str:

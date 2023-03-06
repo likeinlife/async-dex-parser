@@ -65,7 +65,8 @@ class ImageDownloader:
             content = await response.read()
             return content
 
-    async def __saveImage(self, content: bytes, path_to_file: Path):
+    @staticmethod
+    async def __saveImage(content: bytes, path_to_file: Path):
         """Save image in local storage"""
         async with aiofiles.open(path_to_file, 'wb') as file_obj:
             logger.debug(f'Saving image to local files {path_to_file}')

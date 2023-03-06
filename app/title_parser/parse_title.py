@@ -47,9 +47,7 @@ class ParseTitle:
         logger.info(f'Downloading chapters range {chapter_range} from {self.name}')
 
         selected_chapters = SelectChapters(chapter_range)
-        directory_for_title = self.__makeDirectoryName(directory)
-        if not directory_for_title.exists():
-            directory_for_title.mkdir()
+        directory_for_title = self.__makeDirectory(directory)
         for chapter_info in self.__chapters:
             if chapter_info.chapter in selected_chapters:
                 chapter = get_chapter(chapter_info.id)
@@ -59,7 +57,7 @@ class ParseTitle:
         """Download all chapters from title"""
         logger.info(f'Downloading all chapters from manga {self.name}')
 
-        directory_for_title = self.__makeDirectoryName(directory)
+        directory_for_title = self.__makeDirectory(directory)
         if not directory_for_title.exists():
             directory_for_title.mkdir()
         for chapter_info in self.__chapters:
@@ -139,10 +137,17 @@ class ParseTitle:
 
         return chapters_list
 
-    def __makeDirectoryName(self, directory):
+    def __makeDirectory(self, directory: Path):
         logger.info(f'Creating directory {directory}')
-        short_name = textwrap.shorten(self.name, config.NAME_MAX_LENGTH, placeholder='')
-        directory_for_title = directory / short_name
+        if directory in (Path(''), Path('.')):
+            directory_for_title = directory
+        else:
+            short_name = textwrap.shorten(self.name, config.NAME_MAX_LENGTH, placeholder='')
+            directory_for_title = directory / short_name
+
+        if not directory_for_title.exists():
+            directory_for_title.mkdir()
+        logger.info(f'Directory for save: {directory_for_title}')
         return directory_for_title
 
     @property
