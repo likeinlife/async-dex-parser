@@ -55,7 +55,7 @@ def get_logger(name: str) -> logging.Logger:
         stream_handler.setFormatter(StreamFormatter())
         logger.addHandler(stream_handler)
 
-    file_handler = RotatingFileHandler(BASEPATH / 'log.txt', maxBytes=config.LOGS_MAX_SIZE)
+    file_handler = RotatingFileHandler(BASEPATH / 'dex.log', maxBytes=config.LOGS_MAX_SIZE)
     file_handler.setLevel(level)
     file_handler.setFormatter(FileFormatter())
     logger.addHandler(file_handler)
