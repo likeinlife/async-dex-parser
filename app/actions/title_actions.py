@@ -18,6 +18,11 @@ class MakeChaptersTable:
         self.content, self.headers = self.__check_option_cut()
         self.__check_option_show()
 
+    def __check_no_verbose(self) -> bool:
+        if 'no_verbose' in self.args and self.args.no_verbose:
+            return True
+        return False
+
     def __check_option_show(self):
         if 'cut_results' in self.args and self.args.cut_results:
             self.content = itertools.islice(self.content, self.args.cut_results)
@@ -33,6 +38,8 @@ class MakeChaptersTable:
         return content, headers
 
     def __str__(self):
+        if self.__check_no_verbose():
+            return 'No verbose'
         return common.basic_table(self.content, self.headers)
 
 

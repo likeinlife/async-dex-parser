@@ -44,6 +44,7 @@ def parse_args():
     title.add_argument('--folder-name', '-n', help='Folder to save', default="")
     title.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     title.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
+    title.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
     title.set_defaults(func=title_actions.title_actions)
 
     fav = subparsers.add_parser('fav', help='Favourite list')
