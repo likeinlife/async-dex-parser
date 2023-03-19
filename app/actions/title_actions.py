@@ -47,6 +47,7 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
     if len(title.chapters) == 0:
         exit(Words.NO_CHAPTERS)
 
+    print(f'{title.name: ^65}')
     print(MakeChaptersTable(title, args))
 
     download = input('Download chapter(s)? y/n >> ')
@@ -134,5 +135,4 @@ def title_actions(args: argparse.Namespace):
         if len(title.chapters) == 0:
             print(f'There are no chapters with {args.language}. Try `-l any`')
             return
-        print(f'{title.name: ^65}')
         print_chapters(title, args)

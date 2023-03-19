@@ -41,7 +41,6 @@ def parse_args():
                        help='Download all chapters. By default download all en chapters',
                        action='store_true')
     title.add_argument('--directory', '-d', help='Directory for save', default="")
-    title.add_argument('--folder-name', '-n', help='Folder to save', default="")
     title.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     title.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
     title.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
@@ -60,7 +59,6 @@ def parse_args():
                                    help='Download all chapters. By default download all en chapters',
                                    action='store_true')
     fav_acts_download.add_argument('--directory', '-d', help='Directory for save', default="")
-    fav_acts_download.add_argument('--folder-name', '-n', help='Folder to save', default="")
     fav_acts_download.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     fav_acts_download.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
     fav_acts_download.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
