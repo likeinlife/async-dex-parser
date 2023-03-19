@@ -3,11 +3,8 @@ env/
 .mypy_cache/
 .vim/
 async_dex_parser.egg-info/
-app/__pycache__/
-app/chapter_parser/__pycache__/
-app/title_parser/__pycache__/
-app/handlers/__pycache__/
 build/
+logs/
 
 
 

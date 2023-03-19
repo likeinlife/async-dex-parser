@@ -37,6 +37,8 @@ class SelectChapters:
     def __make_range(self, number: str):
         number = number.replace('~', '')
         if number.replace('.', '').isnumeric():
+            if float(number) == (integer_number := int(number)):
+                return int(number)
             return float(number)
         elif '-' in number:
             return self.__get_start_and_end(number)
@@ -55,7 +57,7 @@ class SelectChapters:
     @staticmethod
     def __check_number(chapter_range: float | Tuple[float, float], value_to_check: str) -> bool:
         """Check number if it is in :chapter_range:"""
-        if isinstance(chapter_range, float):
+        if isinstance(chapter_range, float | int):
             if value_to_check == str(chapter_range):
                 return True
         if isinstance(chapter_range, tuple):

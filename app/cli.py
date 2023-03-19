@@ -48,10 +48,23 @@ def parse_args():
     title.set_defaults(func=title_actions.title_actions)
 
     fav = subparsers.add_parser('fav', help='Favourite list')
+
     fav_acts = fav.add_subparsers(help='Favourite list actions')
     fav_acts_list = fav_acts.add_parser('list', help='See your favourite list')
-    fav_acts_list.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
     fav_acts_list.set_defaults(func=fav_actions.see_favourite_list)
+
+    fav_acts_download = fav_acts.add_parser('download', help='Download chapter from favourite list')
+    fav_acts_download.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
+    fav_acts_download.add_argument('--mass',
+                                   '-m',
+                                   help='Download all chapters. By default download all en chapters',
+                                   action='store_true')
+    fav_acts_download.add_argument('--directory', '-d', help='Directory for save', default="")
+    fav_acts_download.add_argument('--folder-name', '-n', help='Folder to save', default="")
+    fav_acts_download.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
+    fav_acts_download.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
+    fav_acts_download.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
+    fav_acts_download.set_defaults(func=fav_actions.install_favourite)
 
     fav_acts_add = fav_acts.add_parser('add', help='Add item to your favourite list')
     fav_acts_add.add_argument('name', help='Manga name')

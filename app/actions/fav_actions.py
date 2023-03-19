@@ -28,9 +28,14 @@ def check_if_favourite_list_empty():
     return True
 
 
-def see_favourite_list(args: argparse.Namespace):
+def see_favourite_list(_) -> list:
+    """Print favourite list table
+
+    Returns:
+        list: favoutire list [{'name': ..., 'id': ...}]
+    """
     if check_if_favourite_list_empty():
-        return
+        exit('Favourite list is empty')
     with open(BASEPATH, 'r') as file_obj:
         favs = json.load(file_obj)
 
@@ -41,6 +46,19 @@ def see_favourite_list(args: argparse.Namespace):
     content = ((item['name'], item['id']) for item in favs)
     table = tabulate(content, headers=headers, showindex='always', stralign='center', tablefmt='rounded_outline')
     print(table)
+    return favs
+
+
+def install_favourite(args: argparse.Namespace):
+    """Install one of favourite list
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    favs = see_favourite_list(args)
 
     details = input('Details? y/n ')
     if not common.true_table.get(details):
@@ -51,9 +69,9 @@ def see_favourite_list(args: argparse.Namespace):
             exit('Stopping')
         if 0 <= int(choosen_number) <= len(favs) - 1:
             id = favs[int(choosen_number)]['id']
-            own_namepsace = argparse.Namespace(id=id, language=args.language, folder_name="", directory="")
-            logger.info(f'Passing from fav_actions to title_actions {own_namepsace}')
-            return title_actions(own_namepsace)
+            args.id = id
+            logger.info(f'Passing from fav_actions to title_actions {args}')
+            return title_actions(args)
         print('There is no item with that number')
 
 
