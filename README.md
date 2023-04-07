@@ -41,7 +41,7 @@ options:
 
 - favoruite list
   - `dex fav list` - show your favourite list
-  - `dex fav install` - download chapter from fav list
+  - `dex fav download` - download chapter from fav list
   - `dex fav add Sewayaki Kitsune c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - add Sewayaki Kitsune manga to your favourite list
   - `dex fav del 1` - delete the first title in your list
 
