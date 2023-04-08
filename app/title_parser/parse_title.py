@@ -13,6 +13,7 @@ from app.chapter_parser import get_chapter
 from app.headers import title_headers
 from app.config import config
 from app.logger_setup import get_logger
+from app.common import clean_name
 from .select_chapters import SelectChapters
 
 logger = get_logger(__name__)
@@ -142,7 +143,8 @@ class ParseTitle:
         if directory in (Path(''), Path('.')):
             directory_for_title = directory
         else:
-            short_name = textwrap.shorten(self.name, config.NAME_MAX_LENGTH, placeholder='')
+            clean_title_name = clean_name(self.name)
+            short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
             directory_for_title = directory / short_name
 
         if not directory_for_title.exists():

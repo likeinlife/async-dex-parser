@@ -1,5 +1,4 @@
 import asyncio
-import re
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -11,6 +10,7 @@ import tqdm.asyncio  # type: ignore
 from app import common
 from app.config import config
 from app.logger_setup import get_logger
+from app.common import clean_name
 
 if TYPE_CHECKING:
     from .parse_chapter import ParseChapter
@@ -33,15 +33,10 @@ class ImageDownloader:
         logger.debug(f'Making path of {directory=} and {folder_name=}')
         if not folder_name:
             if title := self.chapter.chapter_info.chapter_name:
-                folder_name = f'{self.chapter.chapter_info.chapter_number} - {self.__cleanName(title)}'
+                folder_name = f'{self.chapter.chapter_info.chapter_number} - {clean_name(title)}'
             else:
                 folder_name = f'{self.chapter.chapter_info.chapter_number}'
         return directory / folder_name
-
-    @staticmethod
-    def __cleanName(name: str):
-        """Delete invalid symbols for Windows file name"""
-        return re.sub(r'[;<>|/\:"?]', '', name)
 
     def __makeDir(self):
         if not self.__path_to_dir.exists():

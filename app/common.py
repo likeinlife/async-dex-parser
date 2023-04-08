@@ -15,6 +15,9 @@ def get_path(path: str) -> Path:
         return Path('.')
     return Path(path)
 
+def clean_name(name: str) -> str:
+    """Delete invalid symbols for Windows file name"""
+    return re.sub(r'[;<>|/\:"?]', '', name)
 
 def get_id_from_url(url: str, search_for: str) -> str | bool:
     url_pattern = re.compile(f'https://mangadex.org/{search_for}/{id_pattern}')
