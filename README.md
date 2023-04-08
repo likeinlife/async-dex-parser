@@ -10,7 +10,7 @@ You can:
 - Windows:
   - `venv\Scripts\activate`  # Make sure scenarios are enabled. `Set-ExecutionPolicy RemoveSigned`
 - Linux:
-  - TODO
+  - `source venv/bin/activate`
 3. `pip install <your path here>`  # installing modules
 
 # Usage
@@ -41,6 +41,7 @@ options:
 
 - favoruite list
   - `dex fav list` - show your favourite list
+  - `dex fav download` - download chapter from fav list
   - `dex fav add Sewayaki Kitsune c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - add Sewayaki Kitsune manga to your favourite list
   - `dex fav del 1` - delete the first title in your list
 
