@@ -49,7 +49,7 @@ options:
 
   1. Make .bat file with content:
   ```bat
-  @C:\...\async-dex-parser\env\Scripts\python.exe -m app %*
+  @C:\...\async-dex-parser\env\Scripts\python.exe -m dex_parser %*
   ```
   2. Write path of .bat file to you environment variables
 

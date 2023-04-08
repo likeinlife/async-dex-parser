@@ -7,10 +7,10 @@ import aiofiles  # type: ignore
 import aiohttp
 import tqdm.asyncio  # type: ignore
 
-from app import common
-from app.config import config
-from app.logger_setup import get_logger
-from app.common import clean_name
+from dex_parser import common
+from dex_parser.config import config
+from dex_parser.logger_setup import get_logger
+from dex_parser.common import clean_name
 
 if TYPE_CHECKING:
     from .parse_chapter import ParseChapter

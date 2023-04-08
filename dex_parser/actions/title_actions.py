@@ -2,10 +2,10 @@ import argparse
 import textwrap
 import itertools
 
-from app import common, title_parser
-from app.common import Words
-from app.config import config
-from app.logger_setup import get_logger
+from dex_parser import common, title_parser
+from dex_parser.common import Words
+from dex_parser.config import config
+from dex_parser.logger_setup import get_logger
 
 logger = get_logger(__name__)
 

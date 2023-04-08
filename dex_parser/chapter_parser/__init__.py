@@ -1,7 +1,7 @@
 import re
 
-from app import common
-from app import logger_setup
+from dex_parser import common
+from dex_parser import logger_setup
 
 from .parse_chapter import ParseChapter
 

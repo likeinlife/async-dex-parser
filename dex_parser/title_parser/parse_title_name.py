@@ -4,9 +4,9 @@ import urllib.request
 
 import jmespath  # type: ignore
 
-from app import headers
-from app.config import config
-from app.logger_setup import get_logger
+from dex_parser import headers
+from dex_parser.config import config
+from dex_parser.logger_setup import get_logger
 import http.client
 import time
 

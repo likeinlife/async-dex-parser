@@ -1,4 +1,4 @@
-from app import cli
+from dex_parser import cli
 
 
 def main():

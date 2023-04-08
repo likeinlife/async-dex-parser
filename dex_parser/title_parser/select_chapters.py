@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from app.logger_setup import get_logger
+from dex_parser.logger_setup import get_logger
 
 logger = get_logger(__name__)
 
@@ -49,7 +49,7 @@ class SelectChapters:
         """Transform '1-20' to tuple(1, 20)"""
         start, end = list(map(self.__make_range, chapter_range.split('-')))
 
-        if isinstance(start, float|int) and isinstance(end, float|int):
+        if isinstance(start, float | int) and isinstance(end, float | int):
             return start, end
         else:
             exit(f'Not a digits {chapter_range}')

@@ -1,9 +1,8 @@
 import argparse
 
-from app import chapter_parser, common
+from dex_parser import chapter_parser, common
 
 table = {'y': True, 'yes': True, 'Y': True, 'n': False, 'not': False}
-
 
 
 def get_chapter(args: argparse.Namespace):

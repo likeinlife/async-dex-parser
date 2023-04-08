@@ -1,6 +1,6 @@
 import re
 
-from app import common
+from dex_parser import common
 
 from .parse_title import Chapter, ParseTitle
 from .parse_title_name import ParseTitleName

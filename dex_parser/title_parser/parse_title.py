@@ -9,11 +9,11 @@ import time
 
 import jmespath  # type: ignore
 
-from app.chapter_parser import get_chapter
-from app.headers import title_headers
-from app.config import config
-from app.logger_setup import get_logger
-from app.common import clean_name
+from dex_parser.chapter_parser import get_chapter
+from dex_parser.headers import title_headers
+from dex_parser.config import config
+from dex_parser.logger_setup import get_logger
+from dex_parser.common import clean_name
 from .select_chapters import SelectChapters
 
 logger = get_logger(__name__)

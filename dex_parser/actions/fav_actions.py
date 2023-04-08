@@ -5,9 +5,9 @@ import textwrap
 
 from tabulate import tabulate  # type: ignore
 
-from app import common
-from app.logger_setup import get_logger
-from app.config import config
+from dex_parser import common
+from dex_parser.logger_setup import get_logger
+from dex_parser.config import config
 
 from .title_actions import title_actions
 

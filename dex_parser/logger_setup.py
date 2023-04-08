@@ -2,7 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from app.config import config
+from dex_parser.config import config
 
 BASEPATH = Path(__file__).parent / Path('logs')
 if not BASEPATH.exists():

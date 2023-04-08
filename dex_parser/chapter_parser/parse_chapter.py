@@ -6,8 +6,8 @@ from typing import NamedTuple
 import aiohttp
 import jmespath  # type: ignore
 
-from app import common, headers
-from app.logger_setup import get_logger
+from dex_parser import common, headers
+from dex_parser.logger_setup import get_logger
 
 from .image_downloader import ImageDownloader
 
