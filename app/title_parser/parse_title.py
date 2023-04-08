@@ -40,7 +40,7 @@ class ParseTitle:
             return
         self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
 
-    def selectiveDownload(self, chapter_range: str, directory: Path = Path()):
+    def selectiveDownload(self, chapter_range: str, directory: Path = Path(), disable_creating_title_dir: bool = False):
         """Download chapters range
         Args:
             chapter_range: `10-24, 12, ~13`
@@ -48,17 +48,17 @@ class ParseTitle:
         logger.info(f'Downloading chapters range {chapter_range} from {self.name}')
 
         selected_chapters = SelectChapters(chapter_range)
-        directory_for_title = self.__makeDirectory(directory)
+        directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
         for chapter_info in self.__chapters:
             if chapter_info.chapter in selected_chapters:
                 chapter = get_chapter(chapter_info.id)
                 chapter.downloadChapter(directory=directory_for_title)
 
-    def massDownload(self, directory: Path = Path()):
+    def massDownload(self, directory: Path = Path(), disable_creating_title_dir: bool = False):
         """Download all chapters from title"""
         logger.info(f'Downloading all chapters from manga {self.name}')
 
-        directory_for_title = self.__makeDirectory(directory)
+        directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
         if not directory_for_title.exists():
             directory_for_title.mkdir()
         for chapter_info in self.__chapters:
@@ -138,14 +138,14 @@ class ParseTitle:
 
         return chapters_list
 
-    def __makeDirectory(self, directory: Path):
-        logger.info(f'Creating directory {directory}')
-        if directory in (Path(''), Path('.')):
+    def __makeDirectory(self, directory: Path, disable_creating_title_dir: bool = False):
+        if disable_creating_title_dir:
             directory_for_title = directory
         else:
             clean_title_name = clean_name(self.name)
             short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
             directory_for_title = directory / short_name
+        logger.info(f'Creating directory {directory_for_title}')
 
         if not directory_for_title.exists():
             directory_for_title.mkdir()

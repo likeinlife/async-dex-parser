@@ -41,6 +41,10 @@ def parse_args():
                        help='Download all chapters. By default download all en chapters',
                        action='store_true')
     title.add_argument('--directory', '-d', help='Directory for save', default="")
+    title.add_argument('--disable-creating-title-dir',
+                       '-dd',
+                       help='Disable creating directory for title',
+                       action='store_true')
     title.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     title.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
     title.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')

@@ -37,8 +37,8 @@ class SelectChapters:
     def __make_range(self, number: str):
         number = number.replace('~', '')
         if number.replace('.', '').isnumeric():
-            if float(number) == (integer_number := int(number)):
-                return int(number)
+            if (float_number := float(number)) == int(float_number):
+                return int(float_number)
             return float(number)
         elif '-' in number:
             return self.__get_start_and_end(number)
@@ -49,7 +49,7 @@ class SelectChapters:
         """Transform '1-20' to tuple(1, 20)"""
         start, end = list(map(self.__make_range, chapter_range.split('-')))
 
-        if isinstance(start, float) and isinstance(end, float):
+        if isinstance(start, float|int) and isinstance(end, float|int):
             return start, end
         else:
             exit(f'Not a digits {chapter_range}')

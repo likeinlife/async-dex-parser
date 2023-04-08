@@ -70,7 +70,7 @@ class ImageDownloader:
     async def __downloadImage(self, semaphore: asyncio.Semaphore, image_url: str, page_number: int):
         """Download image from internet, then save it in local storage"""
         async with semaphore:
-            logger.info(f'Downloading image {page_number} from {image_url}')
+            logger.debug(f'Downloading image {page_number} from {image_url}')
             this_try = 0
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
