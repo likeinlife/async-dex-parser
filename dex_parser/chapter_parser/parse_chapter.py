@@ -2,8 +2,9 @@ import asyncio
 import textwrap
 from pathlib import Path
 from typing import NamedTuple
-
 import aiohttp
+
+import httpx
 import jmespath  # type: ignore
 
 from dex_parser import common, headers
@@ -41,11 +42,10 @@ class ParseChapter:
         return tasks
 
     async def __getPages(self) -> list:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False),
-                                         headers=headers.parse_chapter_headers) as session:
+        async with httpx.AsyncClient(verify=False, headers=headers.parse_chapter_headers) as session:
             try:
                 response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}')
-                json_response = await response.json()
+                json_response = response.json()
                 image_names = jmespath.search("chapter.data[*]", json_response)
                 base_url = json_response['baseUrl']
                 ch_hash = json_response['chapter']['hash']
@@ -62,13 +62,13 @@ class ParseChapter:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
     async def __getChapter(self) -> Chapter:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
+        async with httpx.AsyncClient(verify=False, headers=headers.parse_chapter_headers) as session:
             response = await session.get(
                 f'https://api.mangadex.org/chapter/{self._chapter_id}'\
                 f'?includes/[]=scanlation_group&includes[]=manga&includes[]=user',
                 params=headers.parse_chapter_params,
                 headers=headers.parse_chapter_headers)
-        json_response = await response.json()
+        json_response = response.json()
 
         parsed_json = jmespath.search("data.attributes.[chapter, title, translatedLanguage, pages]", json_response)
         title_name = jmespath.search("data.relationships[?type=='manga'].attributes.title.* | [0] | [0]", json_response)

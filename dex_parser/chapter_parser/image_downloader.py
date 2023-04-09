@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import aiofiles  # type: ignore
-import aiohttp
+import httpx
 import tqdm.asyncio  # type: ignore
 
-from dex_parser import common
+from dex_parser import common, headers
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
 from dex_parser.common import clean_name
@@ -53,12 +53,12 @@ class ImageDownloader:
             return
 
     @staticmethod
-    async def __getImage(session: aiohttp.ClientSession, image_url: str):
+    async def __getImage(session: httpx.AsyncClient, image_url: str):
         """Download image from internet"""
-        async with session.get(image_url) as response:
-            logger.debug(f'Get image from internet image {image_url}')
-            content = await response.read()
-            return content
+        response = await session.get(image_url)
+        logger.debug(f'Get image from internet image {image_url}')
+        content = response.read()
+        return content
 
     @staticmethod
     async def __saveImage(content: bytes, path_to_file: Path):
@@ -77,16 +77,16 @@ class ImageDownloader:
             self.__checkOverride(path_to_file)
             while True:
                 try:
-                    async with aiohttp.ClientSession() as session:
+                    async with httpx.AsyncClient(headers=headers.parse_chapter_headers, verify=False) as session:
                         content = await self.__getImage(session, image_url)
                         break
-                except aiohttp.ServerDisconnectedError:
-                    print('Sever disconnected. Continue in 5 sec...')
+                except httpx.TimeoutException as e:
+                    print(f'Sever disconnected {e}. Continue in 5 sec...')
                     this_try += 1
                     time.sleep(config.SLEEP_BEFORE_RECONNECTION)
                     if this_try >= config.TRIES_NUMBER:
                         logger.error(f'Cant connect to server after {config.TRIES_NUMBER} attemps')
-                        raise aiohttp.ServerConnectionError(
+                        raise httpx.TimeoutException(
                             'Server is dead. Try discrease semaphore in config and get a chance in a few minutes')
         await self.__saveImage(content, path_to_file)
 
