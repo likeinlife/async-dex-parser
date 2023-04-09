@@ -1,13 +1,10 @@
-import json
-import ssl
-import urllib.request
+import httpx
 
 import jmespath  # type: ignore
 
 from dex_parser import headers
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
-import http.client
 import time
 
 logger = get_logger(__name__)
@@ -21,23 +18,19 @@ class ParseTitleName:
         self.titles = self.__getTitles(name)
 
     def __getTitles(self, name: str) -> list[dict[str, str]]:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
         name = name.replace(' ', '%20')
-
-        req = urllib.request.Request(
-            f'https://api.mangadex.org/manga?title={name}&limit=10&contentRating[]=safe&'
-            f'contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&order[relevance]=desc')
-        for key, value in headers.title_headers.items():
-            req.add_header(key, value)
 
         current_reconnect = 0
         while True:
             try:
-                json_response = json.load(urllib.request.urlopen(req, context=ctx))
+                json_response = httpx.get(
+                    f'https://api.mangadex.org/manga?title={name}&limit=10&contentRating[]=safe&'
+                    f'contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&order[relevance]=desc',
+                    verify=False,
+                    headers=headers.title_headers,
+                ).json()
                 break
-            except http.client.IncompleteRead as e:
+            except httpx.TimeoutException as e:
                 print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
                 current_reconnect += 1
                 time.sleep(config.SLEEP_BEFORE_RECONNECTION)

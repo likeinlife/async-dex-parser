@@ -1,10 +1,8 @@
 import json
-import ssl
 import textwrap
-import urllib.request
+import httpx
 from pathlib import Path
 from typing import NamedTuple, Tuple
-import http.client
 import time
 
 import jmespath  # type: ignore
@@ -67,20 +65,17 @@ class ParseTitle:
 
     def __getTitleName(self) -> str:
         """Get manga name"""
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-
-        req = urllib.request.Request(f'https://api.mangadex.org/manga/{self.id}')
-        for key, value in title_headers.items():
-            req.add_header(key, value)
 
         current_reconnect = 0
         while True:
             try:
-                json_response = json.load(urllib.request.urlopen(req, context=ctx))
+                json_response = httpx.get(
+                    f'https://api.mangadex.org/manga/{self.id}',
+                    verify=False,
+                    headers=title_headers,
+                ).json()
                 break
-            except http.client.IncompleteRead as e:
+            except httpx.TimeoutException as e:
                 print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
                 current_reconnect += 1
                 time.sleep(config.SLEEP_BEFORE_RECONNECTION)
@@ -94,23 +89,20 @@ class ParseTitle:
         return name
 
     def __getJsonWithChapters(self, offset: int = 0):
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-
-        req = urllib.request.Request(f'https://api.mangadex.org/manga/{self.id}'\
-            f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'\
-            f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'\
-            f'contentRating[]=erotica&contentRating[]=pornographic')
-        for key, value in title_headers.items():
-            req.add_header(key, value)
 
         current_reconnect = 0
         while True:
             try:
-                json_response = json.load(urllib.request.urlopen(req, context=ctx))
+                json_response = httpx.get(
+                    f'https://api.mangadex.org/manga/{self.id}'
+                    f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'
+                    f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'
+                    f'contentRating[]=erotica&contentRating[]=pornographic',
+                    verify=False,
+                    headers=title_headers,
+                ).json()
                 break
-            except http.client.IncompleteRead as e:
+            except httpx.TimeoutException as e:
                 print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
                 current_reconnect += 1
                 time.sleep(config.SLEEP_BEFORE_RECONNECTION)
