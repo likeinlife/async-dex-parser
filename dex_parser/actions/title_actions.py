@@ -131,12 +131,11 @@ def title_actions(args: argparse.Namespace):
     """Entry point"""
     identificator = get_identificator(args)
     title = find_title(identificator, args)
+    if len(title.chapters) == 0:
+        exit(f'There are no chapters with {args.language}. Try `-l any`')
 
     add_to_favourite(title, args)
     if 'mass' in args and args.mass:
         title_mass_download(title, args)
     else:
-        if len(title.chapters) == 0:
-            print(f'There are no chapters with {args.language}. Try `-l any`')
-            return
         print_chapters(title, args)
