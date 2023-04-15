@@ -49,15 +49,8 @@ def see_favourite_list(_) -> list:
     return favs
 
 
-def install_favourite(args: argparse.Namespace):
-    """Install one of favourite list
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        _type_: _description_
-    """
+def download_favourite(args: argparse.Namespace):
+    """Download one of favourite list"""
     favs = see_favourite_list(args)
 
     details = input('Details? y/n ')

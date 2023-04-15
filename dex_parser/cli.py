@@ -66,7 +66,11 @@ def parse_args():
     fav_acts_download.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     fav_acts_download.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
     fav_acts_download.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
-    fav_acts_download.set_defaults(func=fav_actions.install_favourite)
+    fav_acts_download.add_argument('--disable-creating-title-dir',
+                                   '-dd',
+                                   help='Disable creating directory for title',
+                                   action='store_true')
+    fav_acts_download.set_defaults(func=fav_actions.download_favourite)
 
     fav_acts_add = fav_acts.add_parser('add', help='Add item to your favourite list')
     fav_acts_add.add_argument('name', help='Manga name')

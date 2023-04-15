@@ -77,7 +77,7 @@ class ImageDownloader:
             self.__checkOverride(path_to_file)
             while True:
                 try:
-                    async with httpx.AsyncClient(headers=headers.parse_chapter_headers, verify=False) as session:
+                    async with httpx.AsyncClient(verify=False) as session:
                         content = await self.__getImage(session, image_url)
                         break
                 except httpx.TimeoutException as e:
