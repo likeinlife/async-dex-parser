@@ -15,19 +15,19 @@ class MakeChaptersTable:
     def __init__(self, title: title_parser.ParseTitle, args: argparse.Namespace) -> None:
         self.title = title
         self.args = args
-        self.content, self.headers = self.__check_option_cut()
-        self.__check_option_show()
+        self.content, self.headers = self.__check_option_show_id()
+        self.__check_option_cut_results()
 
     def __check_no_verbose(self) -> bool:
         if 'no_verbose' in self.args and self.args.no_verbose:
             return True
         return False
 
-    def __check_option_show(self):
+    def __check_option_cut_results(self):
         if 'cut_results' in self.args and self.args.cut_results:
             self.content = itertools.islice(self.content, self.args.cut_results)
 
-    def __check_option_cut(self):
+    def __check_option_show_id(self):
         if 'show_id' in self.args and self.args.show_id:
             headers = ('chapter', 'language', 'pages', 'id')
             content = [(ch.chapter, ch.language, ch.pages, ch.id) for ch in self.title.chapters]
