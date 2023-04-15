@@ -1,5 +1,4 @@
 import asyncio
-import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -25,7 +24,7 @@ class ImageDownloader:
         self.chapter = chapter
         self.__path_to_dir = self.__makePath(directory, folder_name)
         self.__makeDir()
-        self.__override = False
+        self.__override_dir: tuple[bool, Path | None] = (False, None)
 
         asyncio.run(self.__downloadAllImages())
 
@@ -44,13 +43,19 @@ class ImageDownloader:
 
     def __checkOverride(self, path_to_object: Path):
         """Checks if files inside directory already exists"""
-        if self.__override:
-            return
+        folder = path_to_object.parent
+        if (True, folder) == self.__override_dir:
+            return True
+        if (False, folder) == self.__override_dir:
+            return False
         if path_to_object.exists():
-            override = input(f'`{path_to_object}` already exists. Override? y/n ')
+            override = input(f'`{folder}` already exists. Override? y/n ')
             if common.true_table.get(override):
-                self.__override = True
-            return
+                self.__override_dir = (True, folder)
+                return True
+            else:
+                self.__override_dir = (False, folder)
+        return False
 
     @staticmethod
     async def __getImage(session: httpx.AsyncClient, image_url: str):
@@ -73,10 +78,10 @@ class ImageDownloader:
             logger.debug(f'Downloading image {page_number} from {image_url}')
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
-            self.__checkOverride(path_to_file)
-            async with httpx.AsyncClient(headers=headers.get_image_headers, verify=False) as session:
-                content = await self.__getImage(session, image_url)
-        await self.__saveImage(content, path_to_file)
+            if self.__checkOverride(path_to_file):
+                async with httpx.AsyncClient(headers=headers.get_image_headers, verify=False) as session:
+                    content = await self.__getImage(session, image_url)
+                await self.__saveImage(content, path_to_file)
 
     async def __downloadAllImages(self) -> None:
         logger.info(f'Downloading all image from title {self.chapter.chapter_info.manga_name}')
