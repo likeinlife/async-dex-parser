@@ -1,9 +1,7 @@
-import json
 import textwrap
 import httpx
 from pathlib import Path
 from typing import NamedTuple, Tuple
-import time
 
 import jmespath  # type: ignore
 
@@ -66,22 +64,11 @@ class ParseTitle:
     def __getTitleName(self) -> str:
         """Get manga name"""
 
-        current_reconnect = 0
-        while True:
-            try:
-                json_response = httpx.get(
-                    f'https://api.mangadex.org/manga/{self.id}',
-                    verify=False,
-                    headers=title_headers,
-                ).json()
-                break
-            except httpx.TimeoutException as e:
-                print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
-                current_reconnect += 1
-                time.sleep(config.SLEEP_BEFORE_RECONNECTION)
-                if current_reconnect >= config.TRIES_NUMBER:
-                    logger.error(e)
-                    exit('Server disconnected')
+        json_response = httpx.get(
+            f'https://api.mangadex.org/manga/{self.id}',
+            verify=False,
+            headers=title_headers,
+        ).json()
 
         name = jmespath.search('data.attributes.title.* | [0]', json_response)
         logger.debug(f'Got name from {self.id}, {name}')
@@ -90,24 +77,14 @@ class ParseTitle:
 
     def __getJsonWithChapters(self, offset: int = 0):
 
-        current_reconnect = 0
-        while True:
-            try:
-                json_response = httpx.get(
-                    f'https://api.mangadex.org/manga/{self.id}'
-                    f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'
-                    f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'
-                    f'contentRating[]=erotica&contentRating[]=pornographic',
-                    verify=False,
-                    headers=title_headers,
-                ).json()
-                break
-            except httpx.TimeoutException as e:
-                print(f'Sever disconnected. Continue in {config.SLEEP_BEFORE_RECONNECTION} sec...')
-                current_reconnect += 1
-                time.sleep(config.SLEEP_BEFORE_RECONNECTION)
-                if current_reconnect >= config.TRIES_NUMBER:
-                    raise e
+        json_response = httpx.get(
+            f'https://api.mangadex.org/manga/{self.id}'
+            f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'
+            f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'
+            f'contentRating[]=erotica&contentRating[]=pornographic',
+            verify=False,
+            headers=title_headers,
+        ).json()
 
         content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')

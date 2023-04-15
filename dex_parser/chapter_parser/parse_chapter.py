@@ -2,7 +2,6 @@ import asyncio
 import textwrap
 from pathlib import Path
 from typing import NamedTuple
-import aiohttp
 
 import httpx
 import jmespath  # type: ignore

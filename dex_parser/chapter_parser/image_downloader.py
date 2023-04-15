@@ -71,23 +71,11 @@ class ImageDownloader:
         """Download image from internet, then save it in local storage"""
         async with semaphore:
             logger.debug(f'Downloading image {page_number} from {image_url}')
-            this_try = 0
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
             self.__checkOverride(path_to_file)
-            while True:
-                try:
-                    async with httpx.AsyncClient(headers=headers.get_image_headers, verify=False) as session:
-                        content = await self.__getImage(session, image_url)
-                        break
-                except httpx.TimeoutException as e:
-                    print(f'Sever disconnected {e}. Continue in 5 sec...')
-                    this_try += 1
-                    time.sleep(config.SLEEP_BEFORE_RECONNECTION)
-                    if this_try >= config.TRIES_NUMBER:
-                        logger.error(f'Cant connect to server after {config.TRIES_NUMBER} attemps')
-                        raise httpx.TimeoutException(
-                            'Server is dead. Try discrease semaphore in config and get a chance in a few minutes')
+            async with httpx.AsyncClient(headers=headers.get_image_headers, verify=False) as session:
+                content = await self.__getImage(session, image_url)
         await self.__saveImage(content, path_to_file)
 
     async def __downloadAllImages(self) -> None:
