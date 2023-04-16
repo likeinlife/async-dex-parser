@@ -29,7 +29,7 @@ class ImageDownloader:
         asyncio.run(self.__downloadAllImages())
 
     def __makePath(self, directory: Path, folder_name: str):
-        logger.debug(f'Making path of {directory=} and {folder_name=}')
+        logger.debug(f'Making path of `{directory=}` and `{folder_name=}`')
         if not folder_name:
             if title := self.chapter.chapter_info.chapter_name:
                 folder_name = f'{self.chapter.chapter_info.chapter_number} - {clean_name(title)}'
@@ -55,13 +55,15 @@ class ImageDownloader:
                 return True
             else:
                 self.__override_dir = (False, folder)
-        return False
+                return False
+        self.__override_dir = (True, folder)
+        return True
 
     @staticmethod
     async def __getImage(session: httpx.AsyncClient, image_url: str):
         """Download image from internet"""
         response = await session.get(image_url)
-        logger.debug(f'Get image from internet image {image_url}')
+        logger.debug(f'Get image from internet `{image_url}`')
         content = response.read()
         return content
 
@@ -69,13 +71,13 @@ class ImageDownloader:
     async def __saveImage(content: bytes, path_to_file: Path):
         """Save image in local storage"""
         async with aiofiles.open(path_to_file, 'wb') as file_obj:
-            logger.debug(f'Saving image to local files {path_to_file}')
+            logger.debug(f'Saving image to `{path_to_file}`')
             await file_obj.write(content)
 
     async def __downloadImage(self, semaphore: asyncio.Semaphore, image_url: str, page_number: int):
         """Download image from internet, then save it in local storage"""
         async with semaphore:
-            logger.debug(f'Downloading image {page_number} from {image_url}')
+            logger.debug(f'Downloading image {page_number} from `{image_url}`')
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
             if self.__checkOverride(path_to_file):
