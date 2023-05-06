@@ -10,7 +10,7 @@ from dex_parser.headers import title_headers
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
 from dex_parser.common import clean_name
-from .select_chapters import SelectChapters
+from .select_chapters import get_chapter_selector
 
 logger = get_logger(__name__)
 
@@ -36,30 +36,24 @@ class ParseTitle:
             return
         self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
 
-    def selectiveDownload(self, chapter_range: str, directory: Path = Path(), disable_creating_title_dir: bool = False):
+    def Download(
+            self,
+            chapter_select_string: str,
+            directory: Path = Path(),
+            disable_creating_title_dir: bool = False,
+    ):
         """Download chapters range
         Args:
             chapter_range: `10-24, 12, ~13`
         """
-        logger.info(f'Downloading chapters range {chapter_range} from {self.name}')
+        logger.info(f'Downloading chapters range {chapter_select_string} from {self.name}')
 
-        selected_chapters = SelectChapters(chapter_range)
+        selected_chapters = get_chapter_selector(chapter_select_string)
         directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
         for chapter_info in self.__chapters:
             if chapter_info.chapter in selected_chapters:
                 chapter = get_chapter(chapter_info.id)
                 chapter.downloadChapter(directory=directory_for_title)
-
-    def massDownload(self, directory: Path = Path(), disable_creating_title_dir: bool = False):
-        """Download all chapters from title"""
-        logger.info(f'Downloading all chapters from manga {self.name}')
-
-        directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
-        if not directory_for_title.exists():
-            directory_for_title.mkdir()
-        for chapter_info in self.__chapters:
-            chapter = get_chapter(chapter_info.id)
-            chapter.downloadChapter(directory=directory_for_title)
 
     def __getTitleName(self) -> str:
         """Get manga name"""

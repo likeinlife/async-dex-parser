@@ -36,10 +36,6 @@ def parse_args():
     title.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)
     title.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
     title.add_argument('--add-fav', '-f', help='Add to favourite', action='store_true')
-    title.add_argument('--mass',
-                       '-m',
-                       help='Download all chapters. By default download all en chapters',
-                       action='store_true')
     title.add_argument('--directory', '-d', help='Directory for save', default="")
     title.add_argument('--disable-creating-title-dir',
                        '-dd',
@@ -58,10 +54,6 @@ def parse_args():
 
     fav_acts_download = fav_acts.add_parser('download', help='Download chapter from favourite list')
     fav_acts_download.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
-    fav_acts_download.add_argument('--mass',
-                                   '-m',
-                                   help='Download all chapters. By default download all en chapters',
-                                   action='store_true')
     fav_acts_download.add_argument('--directory', '-d', help='Directory for save', default="")
     fav_acts_download.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
     fav_acts_download.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)

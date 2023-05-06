@@ -61,7 +61,7 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
         confirm = input(f'You are going to download chapters {choosen_range} from {title.name}. y/n >> ')
         if not common.true_table.get(confirm):
             exit(Words.STOP)
-        return title.selectiveDownload(
+        return title.Download(
             choosen_range,
             common.get_path(args.directory),
             args.disable_creating_title_dir,
@@ -105,16 +105,6 @@ def add_to_favourite(title: title_parser.ParseTitle, args: argparse.Namespace):
         add_favourite_list_item(own_namespace)
 
 
-def title_mass_download(title: title_parser.ParseTitle, args: argparse.Namespace):
-    chapter_number = title
-    approval = input(f'You want to download all chapters? Title - {title.name}, chapters - {chapter_number}\n'\
-                     f'y/n >> ')
-    if common.true_table.get(approval):
-        title.massDownload(common.get_path(args.directory), args.disable_creating_title_dir)
-    else:
-        exit('Stopping')
-
-
 def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
     """Find title(s) by identificator: url, id, name"""
     founded = title_parser.get_title(identificator, args.language)
@@ -135,7 +125,4 @@ def title_actions(args: argparse.Namespace):
         exit(f'There are no chapters with {args.language}. Try `-l any`')
 
     add_to_favourite(title, args)
-    if 'mass' in args and args.mass:
-        title_mass_download(title, args)
-    else:
-        print_chapters(title, args)
+    print_chapters(title, args)

@@ -15,9 +15,11 @@ def get_path(path: str) -> Path:
         return Path('.')
     return Path(path)
 
+
 def clean_name(name: str) -> str:
     """Delete invalid symbols for Windows file name"""
     return re.sub(r'[;<>|/\:"?]', '', name)
+
 
 def get_id_from_url(url: str, search_for: str) -> str | bool:
     url_pattern = re.compile(f'https://mangadex.org/{search_for}/{id_pattern}')
@@ -40,4 +42,5 @@ class Words:
     NO_CHAPTERS = 'There are no chapters'
     CHAPTER_SELECT_HELP = '''Example: 1, 2, 4-10, ~2-7, ~8. \nIt selects 1, 9, 10 chapters.
 1 | 1-10 - Include
-~1 | ~1-10 - Exclude'''
+~1 | ~1-10 - Exclude
+* - Selects all chapters'''
