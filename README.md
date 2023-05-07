@@ -59,3 +59,9 @@ options:
   ```
   2. Write path of .bat file to you environment variables
 
+
+# Env variables
+- THREADS (default - 5) - connection count at the same time. Recommended to set under 15
+- TIMEOUT (default - 30) - seconds to make connection with mangadex server to download image
+- LOGGING_LEVEL (default - logging.INFO)
+
