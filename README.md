@@ -13,6 +13,10 @@ You can:
   - `source venv/bin/activate`
 3. `pip install <your path here>`  # installing modules
 
+# Installation
+Just download exe, then use it in console like:
+`dex --help`
+
 # Usage
 ```
 usage: parser [-h] {chapter,title,fav} ...
