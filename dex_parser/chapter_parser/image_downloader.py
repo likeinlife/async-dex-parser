@@ -81,7 +81,11 @@ class ImageDownloader:
             file_name = str(page_number).rjust(3, "0") + '.png'
             path_to_file = self.__path_to_dir / file_name
             if self.__checkOverride(path_to_file):
-                async with httpx.AsyncClient(headers=headers.get_image_headers, verify=False) as session:
+                async with httpx.AsyncClient(
+                        headers=headers.get_image_headers,
+                        verify=False,
+                        timeout=config.TIMEOUT,
+                ) as session:
                     content = await self.__getImage(session, image_url)
                 await self.__saveImage(content, path_to_file)
 
