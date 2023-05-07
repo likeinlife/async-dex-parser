@@ -8,11 +8,17 @@ from httpx import Timeout
 
 
 class Config:
-    SEMAPHORE = 5  # number of connections at the same time
     SLEEP_BEFORE_RECONNECTION = 5  # seconds
     NAME_MAX_LENGTH = 40  # max length of title name
     LOGS_MAX_SIZE = 256  # in bytes
     ENABLE_STREAM_HANDLER = False  # print logs to console
+
+    @property
+    def THREADS(self) -> int:
+        """Change threads count"""
+        if (var := os.getenv('THREADS')):
+            return int(var)
+        return 5
 
     @property
     def TIMEOUT(self) -> Timeout:
