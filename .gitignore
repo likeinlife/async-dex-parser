@@ -7,6 +7,7 @@ build/
 logs/
 ox/
 pyapp/
+req.txt
 
 
 

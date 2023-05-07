@@ -17,6 +17,8 @@ class Config:
     def THREADS(self) -> int:
         """Change threads count"""
         if (var := os.getenv('THREADS')):
+            if self.LOGGING_LEVEL == 'DEBUG':
+                print(f'THREADS count = {int(var)}')
             return int(var)
         return 5
 
