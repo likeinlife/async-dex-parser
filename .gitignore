@@ -5,6 +5,8 @@ env/
 async_dex_parser.egg-info/
 build/
 logs/
+ox/
+pyapp/
 
 
 

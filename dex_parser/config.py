@@ -1,6 +1,8 @@
 __all__ = ['config']
+from functools import cached_property
 import logging
 import os
+from pathlib import Path
 
 
 class Config:
@@ -16,6 +18,14 @@ class Config:
             return var
         else:
             return logging.INFO
+
+    @cached_property
+    def BASEPATH(self):
+        BASEPATH = Path(os.path.expanduser(r'~\Documents\dex'))
+        if not BASEPATH.exists():
+            BASEPATH.mkdir()
+
+        return BASEPATH
 
 
 config = Config()

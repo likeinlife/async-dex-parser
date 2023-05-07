@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dex_parser.config import config
 
-BASEPATH = Path(__file__).parent / Path('logs')
+BASEPATH = config.BASEPATH / Path('logs')
 if not BASEPATH.exists():
     BASEPATH.mkdir()
 

@@ -21,3 +21,6 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/likeinlife/async-dex-parser"
+
+[tool.setuptools]
+py-modules = ["dex_parser"]

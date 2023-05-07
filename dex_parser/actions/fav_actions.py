@@ -1,6 +1,5 @@
 import argparse
 import json
-from pathlib import Path
 import textwrap
 
 from tabulate import tabulate  # type: ignore
@@ -11,7 +10,7 @@ from dex_parser.config import config
 
 from .title_actions import title_actions
 
-BASEPATH = Path(__file__).parent.parent / 'favs.json'
+BASEPATH = config.BASEPATH / 'favs.json'
 logger = get_logger(__name__)
 
 
