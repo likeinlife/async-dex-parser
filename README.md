@@ -4,7 +4,12 @@ You can:
 1. Download chapters by their id or url
 2. See manga's chapters by their id, url or name
 3. Add manga to favourite list
-# Installing:
+
+# Installation
+Just download exe, then use it in console like:
+`dex --help`
+
+# Source installation:
 1. `git clone https://github.com/likeinlife/async-dex-parser.git`
 2. `python -m venv venv`  # virtual environment creating. You can skip this, but modules will install in global scope.
 - Windows:
@@ -13,9 +18,6 @@ You can:
   - `source venv/bin/activate`
 3. `pip install <your path here>`  # installing modules
 
-# Installation
-Just download exe, then use it in console like:
-`dex --help`
 
 # Usage
 ```
