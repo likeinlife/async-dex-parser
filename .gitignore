@@ -4,6 +4,7 @@ dev/
 .mypy_cache/
 .vim/
 async_dex_parser.egg-info/
+dex_parser.egg-info/
 build/
 logs/
 ox/

@@ -1,10 +1,8 @@
 [project]
-name = "async_dex_parser"
-version = "1.0.3"
-authors = [
-  { name="likeilife"},
-]
-description = "Async dex parser. Can parse one chapter, all chapter from title etc."
+name = "dex_parser"
+version = "1.0.4"
+authors = [{name="likeilife"}]
+description = "Async mangadex parser. Can parse one chapter, all chapter from title etc."
 readme = "README.md"
 requires-python = ">=3.10.3"
 classifiers = [
