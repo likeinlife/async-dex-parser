@@ -3,6 +3,8 @@ import httpx
 import jmespath  # type: ignore
 
 from dex_parser import headers
+from dex_parser.config import config
+from dex_parser import dex_api
 from dex_parser.logger_setup import get_logger
 
 logger = get_logger(__name__)
@@ -18,12 +20,10 @@ class ParseTitleName:
     def __getTitles(self, name: str) -> list[dict[str, str]]:
         name = name.replace(' ', '%20')
 
-        json_response = httpx.get(
-            f'https://api.mangadex.org/manga?title={name}&limit=10&contentRating[]=safe&'
-            f'contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&order[relevance]=desc',
-            verify=False,
+        json_response = dex_api.title.TitleGetByNameAPI(
             headers=headers.title_headers,
-        ).json()
+            timeout=config.TIMEOUT,
+        ).sendRequest(name=name)
 
         content = jmespath.search('data[].{id:id, title: attributes.title.* | [0]}', json_response)
         logger.debug(f'Got info by {self.name=}: {content}')

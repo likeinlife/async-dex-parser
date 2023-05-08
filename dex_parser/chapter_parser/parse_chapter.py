@@ -7,6 +7,8 @@ import httpx
 import jmespath  # type: ignore
 
 from dex_parser import common, headers
+from dex_parser.config import config
+from dex_parser import dex_api
 from dex_parser.logger_setup import get_logger
 
 from .image_downloader import ImageDownloader
@@ -29,45 +31,34 @@ class ParseChapter:
     def __init__(self, chapter_id: str):
         logger.debug(f'Parsing {chapter_id=}')
         self._chapter_id: str = chapter_id
-        self.chapter_info, self.pages_urls = asyncio.run(self.__collectInfo())
+        self.chapter_info, self.pages_urls = self._getInfo(), self._getPagesUrls()
 
     def downloadChapter(self, directory: Path = Path(), folder_name: str = ""):
         logger.info(f'Download chapter {self.chapter_info}')
         ImageDownloader(self, directory, folder_name)
 
-    async def __collectInfo(self) -> tuple[Chapter, list]:
-        logger.debug('Collecting info about chapter')
-        tasks = await asyncio.gather(self.__getChapter(), self.__getPages())
-        return tasks
+    def _getPagesUrls(self) -> list:
+        json_response = dex_api.chapter.ChapterGetPagesAPI(
+            headers=headers.parse_chapter_headers,
+            timeout=config.TIMEOUT,
+        ).sendRequest(id=self._chapter_id)
+        image_names = jmespath.search("chapter.data[*]", json_response)
+        base_url = json_response['baseUrl']
+        ch_hash = json_response['chapter']['hash']
+        image_urls = list(map(lambda x: self.__makeURLFromImageName(base_url, ch_hash, x), image_names))
 
-    async def __getPages(self) -> list:
-        async with httpx.AsyncClient(verify=False, headers=headers.parse_chapter_headers) as session:
-            try:
-                response = await session.get(f'https://api.mangadex.org/at-home/server/{self._chapter_id}')
-                json_response = response.json()
-                image_names = jmespath.search("chapter.data[*]", json_response)
-                base_url = json_response['baseUrl']
-                ch_hash = json_response['chapter']['hash']
-                image_urls = list(map(lambda x: self.__makeURLFromImageName(base_url, ch_hash, x), image_names))
-
-                logger.debug('Got chapter pages')
-                return image_urls
-            except KeyError:
-                raise KeyError('There is no baseUrl key in json response. Maybe you accidently typed title_id?')
-            except Exception as e:
-                raise Exception(f'{e}. Something went wrong')
+        logger.debug(f'Got chapter({self._chapter_id}) pages')
+        return image_urls
 
     def __makeURLFromImageName(self, base_url: str, ch_hash: str, image_name: str) -> str:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
-    async def __getChapter(self) -> Chapter:
-        async with httpx.AsyncClient(verify=False, headers=headers.parse_chapter_headers) as session:
-            response = await session.get(
-                f'https://api.mangadex.org/chapter/{self._chapter_id}'\
-                f'?includes/[]=scanlation_group&includes[]=manga&includes[]=user',
-                params=headers.parse_chapter_params,
-                headers=headers.parse_chapter_headers)
-        json_response = response.json()
+    def _getInfo(self) -> Chapter:
+        json_response = dex_api.chapter.ChapterGetInfoAPI(
+            headers=headers.parse_chapter_headers,
+            params=headers.parse_chapter_params,
+            timeout=config.TIMEOUT,
+        ).sendRequest(id=self._chapter_id)
 
         parsed_json = jmespath.search("data.attributes.[chapter, title, translatedLanguage, pages]", json_response)
         title_name = jmespath.search("data.relationships[?type=='manga'].attributes.title.* | [0] | [0]", json_response)

@@ -1,5 +1,6 @@
 __pycache__/
 env/
+dev/
 .mypy_cache/
 .vim/
 async_dex_parser.egg-info/
@@ -8,6 +9,7 @@ logs/
 ox/
 pyapp/
 req.txt
+json/
 
 
 

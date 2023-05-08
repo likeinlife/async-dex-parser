@@ -1,15 +1,15 @@
 import textwrap
-import httpx
 from pathlib import Path
 from typing import NamedTuple, Tuple
 
 import jmespath  # type: ignore
 
 from dex_parser.chapter_parser import get_chapter
-from dex_parser.headers import title_headers
+from dex_parser import headers
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
 from dex_parser.common import clean_name
+from dex_parser import dex_api
 from .select_chapters import get_chapter_selector
 
 logger = get_logger(__name__)
@@ -58,11 +58,10 @@ class ParseTitle:
     def __getTitleName(self) -> str:
         """Get manga name"""
 
-        json_response = httpx.get(
-            f'https://api.mangadex.org/manga/{self.id}',
-            verify=False,
-            headers=title_headers,
-        ).json()
+        json_response = dex_api.title.TitleGetInfoAPI(
+            headers=headers.title_headers,
+            timeout=config.TIMEOUT,
+        ).sendRequest(id=self.id)
 
         name = jmespath.search('data.attributes.title.* | [0]', json_response)
         logger.debug(f'Got name from {self.id}, {name}')
@@ -71,14 +70,14 @@ class ParseTitle:
 
     def __getJsonWithChapters(self, offset: int = 0):
 
-        json_response = httpx.get(
-            f'https://api.mangadex.org/manga/{self.id}'
-            f'/feed?limit=96&includes[]=scanlation_group&includes[]=user&order[volume]=desc&'
-            f'order[chapter]=desc&offset={offset}&contentRating[]=safe&contentRating[]=suggestive&'
-            f'contentRating[]=erotica&contentRating[]=pornographic',
-            verify=False,
-            headers=title_headers,
-        ).json()
+        json_response = dex_api.title.TitleGetChaptersAPI(
+            headers=headers.title_headers,
+            timeout=config.TIMEOUT,
+        ).sendRequest(
+            id=self.id,
+            offset=offset,
+            limit=500,
+        )
 
         content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
         total, limit = json_response.get('total'), json_response.get('limit')
