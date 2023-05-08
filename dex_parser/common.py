@@ -1,6 +1,6 @@
-from pathlib import Path
 import re
 from functools import partial
+from pathlib import Path
 
 from tabulate import tabulate  # type: ignore
 

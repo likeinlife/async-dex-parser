@@ -6,9 +6,8 @@ from typing import NamedTuple
 import httpx
 import jmespath  # type: ignore
 
-from dex_parser import common, headers
+from dex_parser import common, dex_api, headers
 from dex_parser.config import config
-from dex_parser import dex_api
 from dex_parser.logger_setup import get_logger
 
 from .image_downloader import ImageDownloader

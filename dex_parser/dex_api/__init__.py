@@ -1,1 +1,1 @@
-from . import (title, chapter)
+from . import chapter, title

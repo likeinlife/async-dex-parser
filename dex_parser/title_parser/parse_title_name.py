@@ -1,10 +1,8 @@
 import httpx
-
 import jmespath  # type: ignore
 
-from dex_parser import headers
+from dex_parser import dex_api, headers
 from dex_parser.config import config
-from dex_parser import dex_api
 from dex_parser.logger_setup import get_logger
 
 logger = get_logger(__name__)

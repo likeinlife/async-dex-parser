@@ -1,7 +1,7 @@
 __all__ = ['config']
-from functools import cached_property
 import logging
 import os
+from functools import cached_property
 from pathlib import Path
 
 from httpx import Timeout

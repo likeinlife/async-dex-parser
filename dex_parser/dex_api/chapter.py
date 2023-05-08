@@ -1,4 +1,7 @@
 from typing import Any
+
+from dex_parser import errors
+
 from .base import DexApiInterface
 
 
@@ -14,9 +17,10 @@ class ChapterGetInfoAPI(DexApiInterface):
         return (f'https://api.mangadex.org/chapter/{parameters["id"]}?includes[]=manga')
 
     @staticmethod
-    def _validateRequest() -> bool:
-        # TODO: make validation to title info
-        raise NotImplementedError
+    def _validateResponse(json_response: dict) -> bool:
+        if json_response['result'] == 'ok':
+            return True
+        raise errors.ParseChapterInfoError('Most likely an incorrect id')
 
 
 class ChapterGetPagesAPI(DexApiInterface):
@@ -31,6 +35,7 @@ class ChapterGetPagesAPI(DexApiInterface):
         return f'https://api.mangadex.org/at-home/server/{parameters["id"]}'
 
     @staticmethod
-    def _validateRequest() -> bool:
-        # TODO: make validation to title info
-        raise NotImplementedError
+    def _validateResponse(json_response: dict) -> bool:
+        if json_response['result'] == 'ok':
+            return True
+        raise errors.ParseChapterPagesError('Most likely an incorrect id')

@@ -7,9 +7,9 @@ import httpx
 import tqdm.asyncio  # type: ignore
 
 from dex_parser import common, headers
+from dex_parser.common import clean_name
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
-from dex_parser.common import clean_name
 
 if TYPE_CHECKING:
     from .parse_chapter import ParseChapter

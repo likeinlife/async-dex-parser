@@ -1,6 +1,6 @@
 [project]
 name = "async_dex_parser"
-version = "0.0.2"
+version = "1.0.3"
 authors = [
   { name="likeilife"},
 ]

@@ -1,6 +1,6 @@
 import argparse
-import textwrap
 import itertools
+import textwrap
 
 from dex_parser import common, title_parser
 from dex_parser.common import Words

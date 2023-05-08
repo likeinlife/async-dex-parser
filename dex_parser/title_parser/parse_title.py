@@ -4,12 +4,12 @@ from typing import NamedTuple, Tuple
 
 import jmespath  # type: ignore
 
+from dex_parser import dex_api, headers
 from dex_parser.chapter_parser import get_chapter
-from dex_parser import headers
+from dex_parser.common import clean_name
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
-from dex_parser.common import clean_name
-from dex_parser import dex_api
+
 from .select_chapters import get_chapter_selector
 
 logger = get_logger(__name__)

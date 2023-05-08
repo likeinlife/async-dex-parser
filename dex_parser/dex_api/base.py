@@ -23,7 +23,7 @@ class DexApiInterface(abc.ABC):
             Any: json
         """
         url = self._formRequest(kwargs)
-        return httpx.get(
+        json_response = httpx.get(
             url,
             headers=self.headers,
             params=self.params,
@@ -31,6 +31,17 @@ class DexApiInterface(abc.ABC):
             verify=False,
             timeout=self.timeout,
         ).json()
+        self._validateResponse(json_response)
+        return json_response
+
+    @staticmethod
+    @abc.abstractmethod
+    def _validateResponse(json_response: dict) -> bool:
+        """Validate json
+
+        Returns:
+            bool: True if ok else Error
+        """
 
     @staticmethod
     @abc.abstractmethod
@@ -40,14 +51,3 @@ class DexApiInterface(abc.ABC):
         Returns:
             str: URL
         """
-        ...
-
-    @staticmethod
-    @abc.abstractmethod
-    def _validateRequest() -> bool:
-        """Validate json
-
-        Returns:
-            bool: True if ok else Error
-        """
-        ...

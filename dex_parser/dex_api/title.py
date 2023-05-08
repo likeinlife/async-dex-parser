@@ -1,5 +1,7 @@
 from typing import Any
 
+from dex_parser import errors
+
 from .base import DexApiInterface
 
 
@@ -17,9 +19,10 @@ class TitleGetInfoAPI(DexApiInterface):
         return f'https://api.mangadex.org/manga/{parameters["id"]}'
 
     @staticmethod
-    def _validateRequest() -> bool:
-        # TODO: make validation to title info
-        raise NotImplementedError
+    def _validateResponse(json_response: dict) -> bool:
+        if json_response['result'] == 'ok':
+            return True
+        raise errors.ParseTitleInfoError('Most likely an incorrect id')
 
 
 class TitleGetChaptersAPI(DexApiInterface):
@@ -44,9 +47,10 @@ class TitleGetChaptersAPI(DexApiInterface):
                 f'contentRating[]=erotica&contentRating[]=pornographic')
 
     @staticmethod
-    def _validateRequest() -> bool:
-        # TODO: make validation to title get chapters
-        raise NotImplementedError
+    def _validateResponse(json_response: dict) -> bool:
+        if json_response['result'] == 'ok':
+            return True
+        raise errors.ParseTitleGetChaptersError('Most likely an incorrect id')
 
 
 class TitleGetByNameAPI(DexApiInterface):
@@ -64,6 +68,7 @@ class TitleGetByNameAPI(DexApiInterface):
                 f'contentRating[]=suggestive&contentRating[]=erotica&includes[]=cover_art&order[relevance]=desc')
 
     @staticmethod
-    def _validateRequest() -> bool:
-        # TODO: make validation to title name finding
-        raise NotImplementedError
+    def _validateResponse(json_response: dict) -> bool:
+        if json_response['result'] == 'ok':
+            return True
+        raise errors.ParseTitleGetByNameError('Most likely an incorrect id')
