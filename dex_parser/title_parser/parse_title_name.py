@@ -1,4 +1,3 @@
-import httpx
 import jmespath  # type: ignore
 
 from dex_parser import dex_api, headers

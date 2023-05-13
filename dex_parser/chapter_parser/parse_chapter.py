@@ -1,9 +1,7 @@
-import asyncio
 import textwrap
 from pathlib import Path
 from typing import NamedTuple
 
-import httpx
 import jmespath  # type: ignore
 
 from dex_parser import common, dex_api, headers

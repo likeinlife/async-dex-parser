@@ -88,9 +88,9 @@ def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Name
 
 def get_identificator(args: argparse.Namespace):
     """args.id might be manga name or id
-    case name: (Test, manga, name) - tuple
-    case id: 11a98sdj9a - str
-    case name with one word: (Test,) - tuple
+    - case name: (Test, manga, name) - tuple
+    - case id: 11a98sdj9a - str
+    - case name with one word: (Test,) - tuple
     """
     if isinstance(args.id, str):
         return args.id

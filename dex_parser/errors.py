@@ -8,7 +8,7 @@ class DexParserError(Exception):
 
     def __init__(self, msg, *args: object) -> None:
         logger.error('%s - %s' % (self.__class__.__name__, msg))
-        super().__init__(*args)
+        super().__init__(msg, *args)
 
 
 class ParseChapterInfoError(DexParserError):
