@@ -92,8 +92,9 @@ class ImageDownloader:
     async def __downloadAllImages(self) -> None:
         logger.info(f'Downloading all image from title {self.chapter.chapter_info.manga_name}')
         semaphore = asyncio.Semaphore(config.THREADS)
+        chapter_number = self.chapter.chapter_info.chapter_number
         tasks = [
             asyncio.create_task(self.__downloadImage(semaphore, image_url, number))
             for number, image_url in enumerate(self.chapter.pages_urls)
         ]
-        [await f for f in tqdm.asyncio.tqdm.as_completed(tasks)]
+        [await f for f in tqdm.asyncio.tqdm.as_completed(tasks, desc=chapter_number)]
