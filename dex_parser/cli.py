@@ -73,5 +73,10 @@ def parse_args():
     fav_acts_del.add_argument('num', type=int, help='Number in favourite list')
     fav_acts_del.set_defaults(func=fav_actions.delete_favourite_list_item)
 
+    fav_acts_update = fav_acts.add_parser('update', help='Update item name from your favourite list')
+    fav_acts_update.add_argument('num', type=int, help='Number in favourite list')
+    fav_acts_update.add_argument('name', type=str, help='New name', default=None)
+    fav_acts_update.set_defaults(func=fav_actions.update_favourite_list_item)
+
     args = parser.parse_args()
     return args

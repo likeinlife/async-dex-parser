@@ -116,3 +116,30 @@ def add_favourite_list_item(args: argparse.Namespace):
         json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
     print(f'Added {title["name"]} with id {title["id"]} to favourite list')
+
+
+def update_favourite_list_item(args: argparse.Namespace):
+    if check_if_favourite_list_empty():
+        return
+    with open(BASEPATH, 'r') as file_obj:
+        favs = json.load(file_obj)
+
+    if not len(favs):
+        exit('Favourite list is empty')
+
+    if args.num > len(favs) - 1:
+        exit('Not a valid number')
+
+    with open(BASEPATH, 'r') as file_obj:
+        favourites: list[dict] = json.load(file_obj)
+
+        updated = favourites[args.num]
+        previous_name = updated['name']
+        updated['name'] = args.name
+
+        logger.info(f'Updating {updated["name"]} with id {updated["id"]} to {args.name}')
+
+    with open(BASEPATH, 'w') as file_obj:
+        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+
+    print(f'Updated {previous_name} with id {updated["id"]} to {args.name}')
