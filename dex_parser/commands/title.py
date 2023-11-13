@@ -36,10 +36,21 @@ class MakeChaptersTable:
 
 		return content, headers
 
-	def __str__(self):
+	def print(self):
 		if self.__check_no_verbose():
 			return 'No verbose'
 		return common.basic_table(self.content, self.headers)
+
+
+def entrypoint(args: argparse.Namespace):
+	"""Entry point"""
+	identificator = get_identificator(args)
+	title = find_title(identificator, args)
+	if len(title.get_chapters()) == 0:
+		exit(f'There are no chapters with {args.language}. Try `-l any`')
+
+	add_to_favourite(title, args)
+	print_chapters(title, args)
 
 
 def print_chapters(title: title_parser.TitleParser, args: argparse.Namespace):
@@ -47,7 +58,7 @@ def print_chapters(title: title_parser.TitleParser, args: argparse.Namespace):
 		exit(Words.NO_CHAPTERS)
 
 	print(f'{title.name: ^65}')
-	print(MakeChaptersTable(title, args))
+	MakeChaptersTable(title, args).print()
 
 	download = input('Download chapter(s)? y/n >> ')
 	if not common.true_table.get(download):
@@ -104,10 +115,10 @@ def get_identificator(args: argparse.Namespace):
 
 def add_to_favourite(title: title_parser.TitleParser, args: argparse.Namespace):
 	if 'add_fav' in args and args.add_fav:
-		from .fav_actions import add_favourite_list_item
+		from .favourite_list import Commands
 
 		own_namespace = argparse.Namespace(name=title.name, id=title.id)
-		add_favourite_list_item(own_namespace)
+		Commands.add_item(own_namespace)
 
 
 def find_title(identificator: str, args: argparse.Namespace) -> title_parser.TitleParser:
@@ -120,14 +131,3 @@ def find_title(identificator: str, args: argparse.Namespace) -> title_parser.Tit
 			return title_parser.TitleParser(founded[0]['id'], args.language)  # type: ignore
 		else:
 			return choose_title_by_name(founded, args)
-
-
-def title_actions(args: argparse.Namespace):
-	"""Entry point"""
-	identificator = get_identificator(args)
-	title = find_title(identificator, args)
-	if len(title.get_chapters()) == 0:
-		exit(f'There are no chapters with {args.language}. Try `-l any`')
-
-	add_to_favourite(title, args)
-	print_chapters(title, args)

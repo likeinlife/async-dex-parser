@@ -16,13 +16,15 @@ class Config(BaseSettings):
 	TIMEOUT_INT: int = Field(5)
 	LOGGING_LEVEL: str = Field('WARNING')
 
-	TIMEOUT: Timeout = Timeout(TIMEOUT_INT)
-
 	@cached_property
 	def BASEPATH(self) -> Path:  # noqa
 		basepath = Path(os.path.expanduser(r'~\Documents\dex'))
 		basepath.mkdir(exist_ok=True, parents=True)
 		return basepath
+
+	@cached_property
+	def TIMEOUT(self) -> Timeout:  # noqa
+		return Timeout(self.TIMEOUT_INT)
 
 
 config = Config()
