@@ -3,6 +3,8 @@ import argparse
 from .commands import chapter, favourite_list, title
 
 fav_commands = favourite_list.Commands
+chapter_commands = chapter.Commands
+title_commands = title.Commands
 
 
 class MyParser(argparse.ArgumentParser):
@@ -30,7 +32,7 @@ def parse_args():
 	chapter_sub.add_argument('id', type=str, help='Chapter id or url')
 	chapter_sub.add_argument('--directory', '-d', help='Directory to save', default='')
 	chapter_sub.add_argument('--folder_name', '-n', help='Folder to save', default='')
-	chapter_sub.set_defaults(func=chapter.entrypoint)
+	chapter_sub.set_defaults(func=chapter_commands.entrypoint)
 
 	title_sub = subparsers.add_parser('title', help='See info about manga')
 	title_sub.add_argument('id', type=str, help='Title id or url or name', nargs=argparse.ONE_OR_MORE)
@@ -46,7 +48,7 @@ def parse_args():
 	title_sub.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')
 	title_sub.add_argument('--cut-results', '-cut', help='Show only n results', type=int, default=0)
 	title_sub.add_argument('--no-verbose', '-nv', help='Disable chapters list output', action='store_true')
-	title_sub.set_defaults(func=title.entrypoint)
+	title_sub.set_defaults(func=title_commands.entrypoint)
 
 	fav = subparsers.add_parser('fav', help='Favourite list')
 
@@ -55,7 +57,7 @@ def parse_args():
 	fav_sub_get.set_defaults(func=fav_commands.print_favourite_list)
 
 	fav_sub_download = fav_sub.add_parser('download', help='Download chapter from favourite list')
-	fav_sub_download.add_argument('number', help='Title number', type=int)
+	fav_sub_download.add_argument('num', help='Title number', type=int)
 	fav_sub_download.add_argument('--language', '-l', help='Language. en/ru/...', default='en')
 	fav_sub_download.add_argument('--directory', '-d', help='Directory for save', default='')
 	fav_sub_download.add_argument('--show-id', '-show', help='Show chapters ids', action='store_true')

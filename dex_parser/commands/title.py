@@ -10,6 +10,19 @@ from dex_parser.logger_setup import get_logger
 logger = get_logger(__name__)
 
 
+class Commands:
+	@staticmethod
+	def entrypoint(args: argparse.Namespace):
+		"""Entry point"""
+		identificator = get_identificator(args)
+		title = find_title(identificator, args)
+		if len(title.get_chapters()) == 0:
+			exit(f'There are no chapters with {args.language}. Try `-l any`')
+
+		add_to_favourite(title, args)
+		print_chapters(title, args)
+
+
 class MakeChaptersTable:
 	def __init__(self, title: title_parser.TitleParser, args: argparse.Namespace) -> None:
 		self.title = title
@@ -40,17 +53,6 @@ class MakeChaptersTable:
 		if self.__check_no_verbose():
 			return 'No verbose'
 		return common.basic_table(self.content, self.headers)
-
-
-def entrypoint(args: argparse.Namespace):
-	"""Entry point"""
-	identificator = get_identificator(args)
-	title = find_title(identificator, args)
-	if len(title.get_chapters()) == 0:
-		exit(f'There are no chapters with {args.language}. Try `-l any`')
-
-	add_to_favourite(title, args)
-	print_chapters(title, args)
 
 
 def print_chapters(title: title_parser.TitleParser, args: argparse.Namespace):
