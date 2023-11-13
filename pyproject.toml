@@ -29,6 +29,7 @@ py-modules = ["dex_parser"]
 dev = [
     "ruff==0.1.5",
     "mypy==1.2.0",
+    "pre-commit==3.5.0",
 ]
 
 [tool.mypy]
@@ -47,3 +48,10 @@ no_implicit_reexport = true
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"
