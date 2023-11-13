@@ -1,15 +1,6 @@
-import re
-
-from dex_parser import common
-
-from .parse_title import ParseTitle
-from .parse_title_name import ParseTitleName
+from .title_name_parser import TitleNameParser
+from .factory import get_title_parser
+from .title_parser import TitleParser
 
 
-def get_title(identificator: str, language: str):
-	if title_id := common.get_id_from_url(identificator, 'title'):
-		return ParseTitle(title_id, language)  # type: ignore
-	elif re.match(common.id_pattern, identificator):
-		return ParseTitle(identificator, language)
-	else:
-		return ParseTitleName(identificator)
+__all__ = ('TitleParser', 'TitleNameParser', 'get_title_parser')

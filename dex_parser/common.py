@@ -1,6 +1,7 @@
 import re
 from functools import partial
 from pathlib import Path
+from textwrap import dedent
 
 from tabulate import tabulate  # type: ignore
 
@@ -16,7 +17,7 @@ def get_path(path: str) -> Path:
 	return Path(path)
 
 
-def clean_name(name: str) -> str:
+def get_clean_path(name: str) -> str:
 	"""Delete invalid symbols for Windows file name"""
 	return re.sub(r'[;<>|/\:"?]', '', name)
 
@@ -40,7 +41,12 @@ class Words:
 	STOP = 'Stopping'
 	INVALID_NUMBER = 'Invalid number'
 	NO_CHAPTERS = 'There are no chapters'
-	CHAPTER_SELECT_HELP = """Example: 1, 2, 4-10, ~2-7, ~8. \nIt selects 1, 9, 10 chapters.
-1 | 1-10 - Include
-~1 | ~1-10 - Exclude
-* - Selects all chapters"""
+	CHAPTER_SELECT_HELP = dedent(
+		"""
+		Example: 1, 2, 4-10, ~2-7, ~8.
+		It selects 1, 9, 10 chapters.
+		1 | 1-10 - Include
+		~1 | ~1-10 - Exclude
+		* - Selects all chapters
+		"""
+	)

@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 
 
 class MakeChaptersTable:
-	def __init__(self, title: title_parser.ParseTitle, args: argparse.Namespace) -> None:
+	def __init__(self, title: title_parser.TitleParser, args: argparse.Namespace) -> None:
 		self.title = title
 		self.args = args
 		self.content, self.headers = self.__check_option_show_id()
@@ -29,10 +29,10 @@ class MakeChaptersTable:
 	def __check_option_show_id(self):
 		if 'show_id' in self.args and self.args.show_id:
 			headers = ('chapter', 'language', 'pages', 'id')
-			content = [(ch.chapter, ch.language, ch.pages, ch.id) for ch in self.title.chapters]
+			content = [[ch.chapter, ch.language, ch.pages, ch.id] for ch in self.title.chapters]
 		else:
 			headers = ('chapter', 'language', 'pages')  # type: ignore
-			content = [(ch.chapter, ch.language, ch.pages) for ch in self.title.chapters]
+			content = [[ch.chapter, ch.language, ch.pages] for ch in self.title.chapters]
 
 		return content, headers
 
@@ -42,7 +42,7 @@ class MakeChaptersTable:
 		return common.basic_table(self.content, self.headers)
 
 
-def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
+def print_chapters(title: title_parser.TitleParser, args: argparse.Namespace):
 	if len(title.chapters) == 0:
 		exit(Words.NO_CHAPTERS)
 
@@ -60,14 +60,14 @@ def print_chapters(title: title_parser.ParseTitle, args: argparse.Namespace):
 		confirm = input(f'You are going to download chapters {choosen_range} from {title.name}. y/n >> ')
 		if not common.true_table.get(confirm):
 			exit(Words.STOP)
-		return title.Download(
+		return title.download(
 			choosen_range,
 			common.get_path(args.directory),
 			args.disable_creating_title_dir,
 		)
 
 
-def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Namespace):
+def choose_title_by_name(title: title_parser.TitleNameParser, args: argparse.Namespace):
 	"""If found several titles by this name"""
 	print('There are more than 1 title found by this name')
 	headers = ('name', 'id')
@@ -86,7 +86,7 @@ def choose_title_by_name(title: title_parser.ParseTitleName, args: argparse.Name
 		if not choosen_number.isnumeric():
 			exit(Words.STOP)
 		if 0 <= int(choosen_number) <= len(title.titles) - 1:
-			return title_parser.ParseTitle(title.titles[int(choosen_number)]['id'], args.language)
+			return title_parser.TitleParser(title.titles[int(choosen_number)]['id'], args.language)
 		print(Words.INVALID_NUMBER)
 
 
@@ -102,7 +102,7 @@ def get_identificator(args: argparse.Namespace):
 		return ' '.join(args.id)
 
 
-def add_to_favourite(title: title_parser.ParseTitle, args: argparse.Namespace):
+def add_to_favourite(title: title_parser.TitleParser, args: argparse.Namespace):
 	if 'add_fav' in args and args.add_fav:
 		from .fav_actions import add_favourite_list_item
 
@@ -110,14 +110,14 @@ def add_to_favourite(title: title_parser.ParseTitle, args: argparse.Namespace):
 		add_favourite_list_item(own_namespace)
 
 
-def find_title(identificator: str, args: argparse.Namespace) -> title_parser.ParseTitle:
+def find_title(identificator: str, args: argparse.Namespace) -> title_parser.TitleParser:
 	"""Find title(s) by identificator: url, id, name"""
-	founded = title_parser.get_title(identificator, args.language)
-	if isinstance(founded, title_parser.ParseTitle):
+	founded = title_parser.get_title_parser(identificator, args.language)
+	if isinstance(founded, title_parser.TitleParser):
 		return founded
 	else:
 		if len(founded) == 1:
-			return title_parser.ParseTitle(founded[0]['id'], args.language)  # type: ignore
+			return title_parser.TitleParser(founded[0]['id'], args.language)  # type: ignore
 		else:
 			return choose_title_by_name(founded, args)
 

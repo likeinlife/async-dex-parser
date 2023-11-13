@@ -1,33 +1,27 @@
 import textwrap
 from pathlib import Path
-from typing import NamedTuple, Tuple
+from typing import Any, Tuple
 
 import jmespath  # type: ignore
 
 from dex_parser import dex_api, headers
-from dex_parser.chapter_parser import get_chapter
-from dex_parser.common import clean_name
+from dex_parser.chapter_parser import get_chapter_parser
+from dex_parser.common import get_clean_path
 from dex_parser.config import config
 from dex_parser.logger_setup import get_logger
 
-from .select_chapters import get_chapter_selector
+from .chapter_selector import get_chapter_selector
+from .models import TitleChapter
 
 logger = get_logger(__name__)
 
 
-class Chapter(NamedTuple):
-	id: str
-	chapter: str
-	language: str
-	pages: int
-
-
-class ParseTitle:
+class TitleParser:
 	def __init__(self, title_id: str, language: str = 'en') -> None:
 		self.id = title_id
 		self.language = language
 		self.name: str = self.__getTitleName()
-		self.__chapters: tuple[Chapter, ...] = self.__parseJson(self.__getJsonWithChapters())
+		self.__chapters: tuple[TitleChapter, ...] = self.__parseJson(self.__getJsonWithChapters())
 		self.__filter_chapters()
 
 	def __filter_chapters(self):
@@ -35,7 +29,7 @@ class ParseTitle:
 			return
 		self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
 
-	def Download(
+	def download(
 		self,
 		chapter_select_string: str,
 		directory: Path = Path(),
@@ -51,7 +45,7 @@ class ParseTitle:
 		directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
 		for chapter_info in self.__chapters:
 			if chapter_info.chapter in selected_chapters:
-				chapter = get_chapter(chapter_info.id)
+				chapter = get_chapter_parser(chapter_info.id)
 				chapter.downloadChapter(directory=directory_for_title)
 
 	def __getTitleName(self) -> str:
@@ -88,14 +82,14 @@ class ParseTitle:
 		return content
 
 	@staticmethod
-	def __parseJson(json_response: dict) -> Tuple[Chapter, ...]:
+	def __parseJson(json_response: dict[str, Any]) -> Tuple[TitleChapter, ...]:
 		chapters_data = jmespath.search(
 			'[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]',
 			json_response,
 		)
 
-		def __make_chapter(chapter_info) -> Chapter:
-			return Chapter(*chapter_info)
+		def __make_chapter(chapter_info) -> TitleChapter:
+			return TitleChapter(*chapter_info)
 
 		chapters_list = tuple(map(__make_chapter, chapters_data))
 
@@ -105,7 +99,7 @@ class ParseTitle:
 		if disable_creating_title_dir:
 			directory_for_title = directory
 		else:
-			clean_title_name = clean_name(self.name)
+			clean_title_name = get_clean_path(self.name)
 			short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
 			directory_for_title = directory / short_name
 		logger.info(f'Creating directory {directory_for_title}')

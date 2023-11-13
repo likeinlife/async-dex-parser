@@ -7,7 +7,7 @@ from dex_parser.logger_setup import get_logger
 logger = get_logger(__name__)
 
 
-class ParseTitleName:
+class TitleNameParser:
 	def __init__(self, name: str) -> None:
 		self.name = name
 		self._total = 0

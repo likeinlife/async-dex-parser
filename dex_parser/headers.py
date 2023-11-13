@@ -1,6 +1,6 @@
 parse_chapter_headers = {
 	'Host': 'api.mangadex.org',
-	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0',
+	'User-Agent': 'MaganDexParser',
 	'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
 	'Accept-Encoding': 'gzip, deflate, br',
 	'Access-Control-Request-Method': 'POST',
@@ -19,7 +19,7 @@ parse_chapter_params = {
 }
 
 get_image_headers = {
-	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0',
+	'User-Agent': 'MangaDexParser',
 	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
 	'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
 	# 'Accept-Encoding': 'gzip, deflate, br',
@@ -34,7 +34,7 @@ get_image_headers = {
 	'Sec-GPC': '1',
 }
 title_headers = {
-	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0',
+	'User-Agent': 'MangaDexParser',
 	'Accept': 'application/json, text/plain, */*',
 	'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
 	# 'Accept-Encoding': 'gzip, deflate, br',

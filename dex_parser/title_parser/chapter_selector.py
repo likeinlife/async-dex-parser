@@ -5,13 +5,13 @@ from dex_parser.logger_setup import get_logger
 logger = get_logger(__name__)
 
 
-def get_chapter_selector(chapter_select_string: str) -> 'SelectChapters':
+def get_chapter_selector(chapter_select_string: str) -> 'ChapterSelector':
 	if chapter_select_string == '*':
-		return SelectChaptersMass(chapter_select_string)
-	return SelectChapters(chapter_select_string)
+		return AllChapterSelector(chapter_select_string)
+	return ChapterSelector(chapter_select_string)
 
 
-class SelectChapters:
+class ChapterSelector:
 	"""Select chapter ranges like `1, 2, 2-10, 20-30, ~8`"""
 
 	def __init__(self, chapters_select_string: str) -> None:
@@ -75,7 +75,7 @@ class SelectChapters:
 		return f'{self.include}; excluding {self.exclude}'
 
 
-class SelectChaptersMass(SelectChapters):
+class AllChapterSelector(ChapterSelector):
 	"""Selects all chapters, for mass download"""
 
 	def __init__(self, _: str) -> None:

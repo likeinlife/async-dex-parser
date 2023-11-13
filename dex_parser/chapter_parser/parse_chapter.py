@@ -1,29 +1,20 @@
 import textwrap
 from pathlib import Path
-from typing import NamedTuple
 
 import jmespath  # type: ignore
 
 from dex_parser import common, dex_api, headers
 from dex_parser.config import config
+from dex_parser.downloader import ImageDownloader
 from dex_parser.logger_setup import get_logger
 
-from .image_downloader import ImageDownloader
+from .models import Chapter
 
 logger = get_logger(__name__)
 
 
-class Chapter(NamedTuple):
-	id: str
-	manga_name: str
-	chapter_number: str
-	chapter_name: str
-	language: str
-	pages_number: int
-
-
 class ParseChapter:
-	"""Parses dex chapter via id"""
+	"""Parse mangadex chapter via id."""
 
 	def __init__(self, chapter_id: str):
 		logger.debug(f'Parsing {chapter_id=}')
@@ -32,9 +23,10 @@ class ParseChapter:
 
 	def downloadChapter(self, directory: Path = Path(), folder_name: str = ''):
 		logger.info(f'Download chapter {self.chapter_info}')
-		ImageDownloader(self, directory, folder_name)
+		downloader = ImageDownloader(self, directory, folder_name)
+		downloader.run()
 
-	def _getPagesUrls(self) -> list:
+	def _getPagesUrls(self) -> list[str]:
 		json_response = dex_api.chapter.ChapterGetPagesAPI(
 			headers=headers.parse_chapter_headers,
 			timeout=config.TIMEOUT,
@@ -42,7 +34,16 @@ class ParseChapter:
 		image_names = jmespath.search('chapter.data[*]', json_response)
 		base_url = json_response['baseUrl']
 		ch_hash = json_response['chapter']['hash']
-		image_urls = list(map(lambda x: self.__makeURLFromImageName(base_url, ch_hash, x), image_names))
+		image_urls = list(
+			map(
+				lambda x: self.__makeURLFromImageName(
+					base_url,
+					ch_hash,
+					x,
+				),
+				image_names,
+			)
+		)
 
 		logger.debug(f'Got chapter({self._chapter_id}) pages')
 		return image_urls
@@ -57,7 +58,10 @@ class ParseChapter:
 			timeout=config.TIMEOUT,
 		).sendRequest(id=self._chapter_id)
 
-		parsed_json = jmespath.search('data.attributes.[chapter, title, translatedLanguage, pages]', json_response)
+		parsed_json = jmespath.search(
+			'data.attributes.[chapter, title, translatedLanguage, pages]',
+			json_response,
+		)
 		title_name = jmespath.search(
 			"data.relationships[?type=='manga'].attributes.title.* | [0] | [0]",
 			json_response,

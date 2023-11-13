@@ -2,10 +2,10 @@ from typing import Any
 
 from dex_parser import errors
 
-from .base import DexApiInterface
+from .base import ApiInterface
 
 
-class TitleGetInfoAPI(DexApiInterface):
+class TitleGetInfoAPI(ApiInterface):
 	"""Get title info"""
 
 	def sendRequest(self, **kwargs) -> Any:
@@ -19,13 +19,13 @@ class TitleGetInfoAPI(DexApiInterface):
 		return f'https://api.mangadex.org/manga/{parameters["id"]}'
 
 	@staticmethod
-	def _validateResponse(json_response: dict) -> bool:
+	def _validateResponse(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseTitleInfoError('Most likely an incorrect id')
 
 
-class TitleGetChaptersAPI(DexApiInterface):
+class TitleGetChaptersAPI(ApiInterface):
 	"""Get chapters from title"""
 
 	def sendRequest(self, **kwargs) -> Any:
@@ -49,13 +49,13 @@ class TitleGetChaptersAPI(DexApiInterface):
 		)
 
 	@staticmethod
-	def _validateResponse(json_response: dict) -> bool:
+	def _validateResponse(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseTitleGetChaptersError('Most likely an incorrect id')
 
 
-class TitleGetByNameAPI(DexApiInterface):
+class TitleGetByNameAPI(ApiInterface):
 	"""Get title by name"""
 
 	def sendRequest(self, **kwargs) -> Any:
@@ -72,7 +72,7 @@ class TitleGetByNameAPI(DexApiInterface):
 		)
 
 	@staticmethod
-	def _validateResponse(json_response: dict) -> bool:
+	def _validateResponse(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseTitleGetByNameError('Most likely an incorrect id')

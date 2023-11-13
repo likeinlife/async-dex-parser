@@ -1,18 +1,4 @@
-import re
-
-from dex_parser import common, logger_setup
-
 from .parse_chapter import ParseChapter
+from .factory import get_chapter_parser
 
-logger = logger_setup.get_logger(__name__)
-
-
-def get_chapter(identificator: str):
-	if chapter_id := common.get_id_from_url(identificator, 'chapter'):
-		logger.info(f'{identificator} is URL')
-		return ParseChapter(chapter_id)  # type: ignore
-	elif re.match(common.id_pattern, identificator):
-		logger.info(f'{identificator} is id')
-		return ParseChapter(identificator)
-	else:
-		exit(f'Invalid identificator: {identificator}')
+__all__ = ('ParseChapter', 'get_chapter_parser')

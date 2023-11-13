@@ -2,10 +2,10 @@ from typing import Any
 
 from dex_parser import errors
 
-from .base import DexApiInterface
+from .base import ApiInterface
 
 
-class ChapterGetInfoAPI(DexApiInterface):
+class ChapterGetInfoAPI(ApiInterface):
 	"""Get chapter info"""
 
 	def sendRequest(self, **kwargs) -> Any:
@@ -17,13 +17,13 @@ class ChapterGetInfoAPI(DexApiInterface):
 		return f'https://api.mangadex.org/chapter/{parameters["id"]}?includes[]=manga'
 
 	@staticmethod
-	def _validateResponse(json_response: dict) -> bool:
+	def _validateResponse(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseChapterInfoError('Most likely an incorrect id')
 
 
-class ChapterGetPagesAPI(DexApiInterface):
+class ChapterGetPagesAPI(ApiInterface):
 	"""Get chapter pages"""
 
 	def sendRequest(self, **kwargs) -> Any:
@@ -35,7 +35,7 @@ class ChapterGetPagesAPI(DexApiInterface):
 		return f'https://api.mangadex.org/at-home/server/{parameters["id"]}'
 
 	@staticmethod
-	def _validateResponse(json_response: dict) -> bool:
+	def _validateResponse(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseChapterPagesError('Most likely an incorrect id')
