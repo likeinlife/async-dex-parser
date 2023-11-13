@@ -170,7 +170,7 @@ logs/
 ox/
 pyapp/
 req.txt
-json/
+json-responses/
 .vscode/
 
 
