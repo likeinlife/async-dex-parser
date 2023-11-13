@@ -2,22 +2,22 @@ from typing import Any
 
 from dex_parser import errors
 
-from .base import ApiInterface
+from .interface import ApiInterface
 
 
 class ChapterGetInfoAPI(ApiInterface):
 	"""Get chapter info"""
 
-	def sendRequest(self, **kwargs) -> Any:
+	def send_request(self, **kwargs) -> Any:
 		"""Parameters: id(UUID)"""
-		return super().sendRequest(**kwargs)
+		return super().send_request(**kwargs)
 
 	@staticmethod
-	def _formRequest(parameters: dict[str, Any]) -> str:
+	def _form_request(parameters: dict[str, Any]) -> str:
 		return f'https://api.mangadex.org/chapter/{parameters["id"]}?includes[]=manga'
 
 	@staticmethod
-	def _validateResponse(json_response: dict[str, Any]) -> bool:
+	def _validate_response(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseChapterInfoError('Most likely an incorrect id')
@@ -26,16 +26,16 @@ class ChapterGetInfoAPI(ApiInterface):
 class ChapterGetPagesAPI(ApiInterface):
 	"""Get chapter pages"""
 
-	def sendRequest(self, **kwargs) -> Any:
+	def send_request(self, **kwargs) -> Any:
 		"""Parameters: id(UUID)"""
-		return super().sendRequest(**kwargs)
+		return super().send_request(**kwargs)
 
 	@staticmethod
-	def _formRequest(parameters: dict[str, Any]) -> str:
+	def _form_request(parameters: dict[str, Any]) -> str:
 		return f'https://api.mangadex.org/at-home/server/{parameters["id"]}'
 
 	@staticmethod
-	def _validateResponse(json_response: dict[str, Any]) -> bool:
+	def _validate_response(json_response: dict[str, Any]) -> bool:
 		if json_response['result'] == 'ok':
 			return True
 		raise errors.ParseChapterPagesError('Most likely an incorrect id')

@@ -29,10 +29,10 @@ class MakeChaptersTable:
 	def __check_option_show_id(self):
 		if 'show_id' in self.args and self.args.show_id:
 			headers = ('chapter', 'language', 'pages', 'id')
-			content = [[ch.chapter, ch.language, ch.pages, ch.id] for ch in self.title.chapters]
+			content = [[ch.chapter, ch.language, ch.pages, ch.id] for ch in self.title.get_chapters()]
 		else:
 			headers = ('chapter', 'language', 'pages')  # type: ignore
-			content = [[ch.chapter, ch.language, ch.pages] for ch in self.title.chapters]
+			content = [[ch.chapter, ch.language, ch.pages] for ch in self.title.get_chapters()]
 
 		return content, headers
 
@@ -43,7 +43,7 @@ class MakeChaptersTable:
 
 
 def print_chapters(title: title_parser.TitleParser, args: argparse.Namespace):
-	if len(title.chapters) == 0:
+	if len(title.get_chapters()) == 0:
 		exit(Words.NO_CHAPTERS)
 
 	print(f'{title.name: ^65}')
@@ -126,7 +126,7 @@ def title_actions(args: argparse.Namespace):
 	"""Entry point"""
 	identificator = get_identificator(args)
 	title = find_title(identificator, args)
-	if len(title.chapters) == 0:
+	if len(title.get_chapters()) == 0:
 		exit(f'There are no chapters with {args.language}. Try `-l any`')
 
 	add_to_favourite(title, args)

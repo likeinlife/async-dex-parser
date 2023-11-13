@@ -19,44 +19,42 @@ class ParseChapter:
 	def __init__(self, chapter_id: str):
 		logger.debug(f'Parsing {chapter_id=}')
 		self._chapter_id: str = chapter_id
-		self.chapter_info, self.pages_urls = self._getInfo(), self._getPagesUrls()
+		self.chapter_info, self.pages_urls = self._get_chapter_info(), self._get_pages_urls()
 
-	def downloadChapter(self, directory: Path = Path(), folder_name: str = ''):
+	def download_chapter(self, directory: Path = Path(), folder_name: str = ''):
 		logger.info(f'Download chapter {self.chapter_info}')
 		downloader = ImageDownloader(self, directory, folder_name)
 		downloader.run()
 
-	def _getPagesUrls(self) -> list[str]:
+	def _get_pages_urls(self) -> list[str]:
 		json_response = dex_api.chapter.ChapterGetPagesAPI(
 			headers=headers.parse_chapter_headers,
 			timeout=config.TIMEOUT,
-		).sendRequest(id=self._chapter_id)
+		).send_request(id=self._chapter_id)
 		image_names = jmespath.search('chapter.data[*]', json_response)
 		base_url = json_response['baseUrl']
 		ch_hash = json_response['chapter']['hash']
-		image_urls = list(
-			map(
-				lambda x: self.__makeURLFromImageName(
-					base_url,
-					ch_hash,
-					x,
-				),
-				image_names,
+		image_urls = [
+			self.__get_url_from_image_name(
+				base_url,
+				ch_hash,
+				image_name,
 			)
-		)
+			for image_name in image_names
+		]
 
 		logger.debug(f'Got chapter({self._chapter_id}) pages')
 		return image_urls
 
-	def __makeURLFromImageName(self, base_url: str, ch_hash: str, image_name: str) -> str:
+	def __get_url_from_image_name(self, base_url: str, ch_hash: str, image_name: str) -> str:
 		return f'{base_url}/data/{ch_hash}/{image_name}'
 
-	def _getInfo(self) -> Chapter:
+	def _get_chapter_info(self) -> Chapter:
 		json_response = dex_api.chapter.ChapterGetInfoAPI(
 			headers=headers.parse_chapter_headers,
 			params=headers.parse_chapter_params,
 			timeout=config.TIMEOUT,
-		).sendRequest(id=self._chapter_id)
+		).send_request(id=self._chapter_id)
 
 		parsed_json = jmespath.search(
 			'data.attributes.[chapter, title, translatedLanguage, pages]',

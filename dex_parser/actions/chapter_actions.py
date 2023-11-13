@@ -10,4 +10,4 @@ def get_chapter(args: argparse.Namespace):
 	print(chapter)
 	download = input('download? y/n ')
 	if table.get(download):
-		chapter.downloadChapter(common.get_path(args.directory), args.folder_name)
+		chapter.download_chapter(common.get_path(args.directory), args.folder_name)

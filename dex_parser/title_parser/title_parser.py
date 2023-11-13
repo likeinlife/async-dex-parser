@@ -20,14 +20,9 @@ class TitleParser:
 	def __init__(self, title_id: str, language: str = 'en') -> None:
 		self.id = title_id
 		self.language = language
-		self.name: str = self.__getTitleName()
-		self.__chapters: tuple[TitleChapter, ...] = self.__parseJson(self.__getJsonWithChapters())
-		self.__filter_chapters()
-
-	def __filter_chapters(self):
-		if self.language == 'any':
-			return
-		self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
+		self.name: str = self._get_title_name()
+		self.__chapters: tuple[TitleChapter, ...] = self._parse_json(self._get_json())
+		self._filter_chapters()
 
 	def download(
 		self,
@@ -35,37 +30,46 @@ class TitleParser:
 		directory: Path = Path(),
 		disable_creating_title_dir: bool = False,
 	):
-		"""Download chapters range
+		"""
+		Download chapters range.
+
 		Args:
 		    chapter_range: `10-24, 12, ~13`
 		"""
 		logger.info(f'Downloading chapters range {chapter_select_string} from {self.name}')
 
 		selected_chapters = get_chapter_selector(chapter_select_string)
-		directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
+		directory_for_title = self._create_dir(directory, disable_creating_title_dir)
 		for chapter_info in self.__chapters:
 			if chapter_info.chapter in selected_chapters:
 				chapter = get_chapter_parser(chapter_info.id)
-				chapter.downloadChapter(directory=directory_for_title)
+				chapter.download_chapter(directory=directory_for_title)
 
-	def __getTitleName(self) -> str:
-		"""Get manga name"""
+	def get_chapters(self):
+		return self.__chapters
 
+	def _filter_chapters(self):
+		if self.language == 'any':
+			return
+		self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
+
+	def _get_title_name(self) -> str:
+		"""Get manga name."""
 		json_response = dex_api.title.TitleGetInfoAPI(
 			headers=headers.title_headers,
 			timeout=config.TIMEOUT,
-		).sendRequest(id=self.id)
+		).send_request(id=self.id)
 
 		name = jmespath.search('data.attributes.title.* | [0]', json_response)
 		logger.debug(f'Got name from {self.id}, {name}')
 
 		return name
 
-	def __getJsonWithChapters(self, offset: int = 0):
+	def _get_json(self, offset: int = 0):
 		json_response = dex_api.title.TitleGetChaptersAPI(
 			headers=headers.title_headers,
 			timeout=config.TIMEOUT,
-		).sendRequest(
+		).send_request(
 			id=self.id,
 			offset=offset,
 			limit=500,
@@ -75,14 +79,14 @@ class TitleParser:
 		total, limit = json_response.get('total'), json_response.get('limit')
 
 		if total > limit and offset + limit < total:
-			content.extend(self.__getJsonWithChapters(offset + limit))
+			content.extend(self._get_json(offset + limit))
 
 		logger.debug(f'Got chapters from {self.id=}')
 
 		return content
 
 	@staticmethod
-	def __parseJson(json_response: dict[str, Any]) -> Tuple[TitleChapter, ...]:
+	def _parse_json(json_response: dict[str, Any]) -> Tuple[TitleChapter, ...]:
 		chapters_data = jmespath.search(
 			'[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]',
 			json_response,
@@ -95,7 +99,7 @@ class TitleParser:
 
 		return chapters_list
 
-	def __makeDirectory(self, directory: Path, disable_creating_title_dir: bool = False):
+	def _create_dir(self, directory: Path, disable_creating_title_dir: bool = False):
 		if disable_creating_title_dir:
 			directory_for_title = directory
 		else:
@@ -108,10 +112,6 @@ class TitleParser:
 			directory_for_title.mkdir()
 		logger.info(f'Directory for save: {directory_for_title}')
 		return directory_for_title
-
-	@property
-	def chapters(self):
-		return self.__chapters
 
 	def __repr__(self) -> str:
 		return f'{self.id}'

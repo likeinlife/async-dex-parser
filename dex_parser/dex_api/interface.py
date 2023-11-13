@@ -17,13 +17,13 @@ class ApiInterface(abc.ABC):
 		self.proxies = proxies
 		self.timeout = timeout
 
-	def sendRequest(self, **kwargs) -> Any:
+	def send_request(self, **kwargs) -> Any:
 		"""Make request
 
 		Returns:
 		    Any: json
 		"""
-		url = self._formRequest(kwargs)
+		url = self._form_request(kwargs)
 		json_response = httpx.get(
 			url,
 			headers=self.headers,
@@ -32,12 +32,12 @@ class ApiInterface(abc.ABC):
 			verify=False,
 			timeout=self.timeout,
 		).json()
-		self._validateResponse(json_response)
+		self._validate_response(json_response)
 		return json_response
 
 	@staticmethod
 	@abc.abstractmethod
-	def _validateResponse(json_response: dict[str, Any]) -> bool:
+	def _validate_response(json_response: dict[str, Any]) -> bool:
 		"""Validate json
 
 		Returns:
@@ -46,7 +46,7 @@ class ApiInterface(abc.ABC):
 
 	@staticmethod
 	@abc.abstractmethod
-	def _formRequest(parameters: dict[str, Any]) -> str:
+	def _form_request(parameters: dict[str, Any]) -> str:
 		"""Make url to request
 
 		Returns:

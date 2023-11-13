@@ -52,6 +52,9 @@ warn_required_dynamic_aliases = true
 [tool.ruff]
 line-length = 120
 exclude = ["__init__.py", "venv"]
+select = ["F", "E", "W", "C", "I", "N", "S"]
+extend-select = ["D202",]
+ignore = ["W191", "E101", "S501"]
 
 
 [tool.ruff.format]
