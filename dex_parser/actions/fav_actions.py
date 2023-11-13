@@ -15,131 +15,137 @@ logger = get_logger(__name__)
 
 
 def check_if_favourite_list_empty():
-    if BASEPATH.exists():
-        logger.info(f'{BASEPATH} already exists')
-        return False
-    else:
-        with open(BASEPATH, 'w', encoding='UTF-8') as file_obj:
-            json.dump([], file_obj, ensure_ascii=False, indent=4)
-        print('Favourite list does not exists. Just made one')
-        logger.info(f'{BASEPATH} created')
+	if BASEPATH.exists():
+		logger.info(f'{BASEPATH} already exists')
+		return False
+	else:
+		with open(BASEPATH, 'w', encoding='UTF-8') as file_obj:
+			json.dump([], file_obj, ensure_ascii=False, indent=4)
+		print('Favourite list does not exists. Just made one')
+		logger.info(f'{BASEPATH} created')
 
-    return True
+	return True
 
 
 def see_favourite_list(_) -> list:
-    """Print favourite list table
+	"""Print favourite list table
 
-    Returns:
-        list: favoutire list [{'name': ..., 'id': ...}]
-    """
-    if check_if_favourite_list_empty():
-        exit('Favourite list is empty')
-    with open(BASEPATH, 'r') as file_obj:
-        favs = json.load(file_obj)
+	Returns:
+	    list: favoutire list [{'name': ..., 'id': ...}]
+	"""
+	if check_if_favourite_list_empty():
+		exit('Favourite list is empty')
+	with open(BASEPATH, 'r') as file_obj:
+		favs = json.load(file_obj)
 
-    if not len(favs):
-        exit('Favourite list is empty')
+	if not len(favs):
+		exit('Favourite list is empty')
 
-    headers = ('name', 'id')
-    content = ((item['name'], item['id']) for item in favs)
-    table = tabulate(content, headers=headers, showindex='always', stralign='center', tablefmt='rounded_outline')
-    print(table)
-    return favs
+	headers = ('name', 'id')
+	content = ((item['name'], item['id']) for item in favs)
+	table = tabulate(
+		content,
+		headers=headers,
+		showindex='always',
+		stralign='center',
+		tablefmt='rounded_outline',
+	)
+	print(table)
+	return favs
 
 
 def download_favourite(args: argparse.Namespace):
-    """Download one of favourite list"""
-    favs = see_favourite_list(args)
+	"""Download one of favourite list"""
+	favs = see_favourite_list(args)
 
-    details = input('Details? y/n ')
-    if not common.true_table.get(details):
-        return
-    while True:
-        choosen_number = input('Enter number? >> ')
-        if not choosen_number.isnumeric():
-            exit('Stopping')
-        if 0 <= int(choosen_number) <= len(favs) - 1:
-            id = favs[int(choosen_number)]['id']
-            args.id = id
-            logger.info(f'Passing from fav_actions to title_actions {args}')
-            return title_actions(args)
-        print('There is no item with that number')
+	details = input('Details? y/n ')
+	if not common.true_table.get(details):
+		return
+	while True:
+		choosen_number = input('Enter number? >> ')
+		if not choosen_number.isnumeric():
+			exit('Stopping')
+		if 0 <= int(choosen_number) <= len(favs) - 1:
+			id = favs[int(choosen_number)]['id']
+			args.id = id
+			logger.info(f'Passing from fav_actions to title_actions {args}')
+			return title_actions(args)
+		print('There is no item with that number')
 
 
 def delete_favourite_list_item(args: argparse.Namespace):
-    if check_if_favourite_list_empty():
-        return
-    with open(BASEPATH, 'r') as file_obj:
-        favs = json.load(file_obj)
+	if check_if_favourite_list_empty():
+		return
+	with open(BASEPATH, 'r') as file_obj:
+		favs = json.load(file_obj)
 
-    if not len(favs):
-        exit('Favourite list is empty')
+	if not len(favs):
+		exit('Favourite list is empty')
 
-    if args.num > len(favs) - 1:
-        exit('Not a valid number')
+	if args.num > len(favs) - 1:
+		exit('Not a valid number')
 
-    with open(BASEPATH, 'r') as file_obj:
-        favourites: list = json.load(file_obj)
-        deleted: dict[str, str] = favourites.pop(args.num)
-        logger.info(f'Deleting {deleted.get("name")} with {deleted.get("id")}')
+	with open(BASEPATH, 'r') as file_obj:
+		favourites: list = json.load(file_obj)
+		deleted: dict[str, str] = favourites.pop(args.num)
+		logger.info(f'Deleting {deleted.get("name")} with {deleted.get("id")}')
 
-    with open(BASEPATH, 'w') as file_obj:
-        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+	with open(BASEPATH, 'w') as file_obj:
+		json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
-    print(f'Deleted {deleted["name"]} with id {deleted["id"]} to favourite list')
+	print(f'Deleted {deleted["name"]} with id {deleted["id"]} to favourite list')
 
 
 def add_favourite_list_item(args: argparse.Namespace):
-    short_name = textwrap.shorten(args.name, config.NAME_MAX_LENGTH, placeholder='...')
-    logger.info(f'Adding to fav list {short_name} with {args.id}')
-    if not (id := common.validate_id(args.id)):
-        exit('Invalid id')
-    title = {'name': short_name, 'id': id}
+	short_name = textwrap.shorten(args.name, config.NAME_MAX_LENGTH, placeholder='...')
+	logger.info(f'Adding to fav list {short_name} with {args.id}')
+	if not (id := common.validate_id(args.id)):
+		exit('Invalid id')
+	title = {'name': short_name, 'id': id}
 
-    if check_if_favourite_list_empty():
-        with open(BASEPATH, 'w') as file_obj:
-            json.dump([title], file_obj, indent=4, ensure_ascii=False)
-            print(f'Added {title["name"]} with id {title["id"]} to favourite list')
-            return
+	if check_if_favourite_list_empty():
+		with open(BASEPATH, 'w') as file_obj:
+			json.dump([title], file_obj, indent=4, ensure_ascii=False)
+			print(f'Added {title["name"]} with id {title["id"]} to favourite list')
+			return
 
-    with open(BASEPATH, 'r') as file_obj:
-        favourites: list = json.load(file_obj)
-        if title in favourites:
-            logger.debug(f'{short_name} already in favourite list')
-            print(f'{short_name} already in favourites')
-            return
-        else:
-            favourites.append(title)
+	with open(BASEPATH, 'r') as file_obj:
+		favourites: list = json.load(file_obj)
+		if title in favourites:
+			logger.debug(f'{short_name} already in favourite list')
+			print(f'{short_name} already in favourites')
+			return
+		else:
+			favourites.append(title)
 
-    with open(BASEPATH, 'w') as file_obj:
-        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+	with open(BASEPATH, 'w') as file_obj:
+		json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
-    print(f'Added {title["name"]} with id {title["id"]} to favourite list')
+	print(f'Added {title["name"]} with id {title["id"]} to favourite list')
 
 
 def update_favourite_list_item(args: argparse.Namespace):
-    if check_if_favourite_list_empty():
-        return
-    with open(BASEPATH, 'r') as file_obj:
-        favs = json.load(file_obj)
+	if check_if_favourite_list_empty():
+		return
+	with open(BASEPATH, 'r') as file_obj:
+		favs = json.load(file_obj)
 
-    if not len(favs):
-        exit('Favourite list is empty')
+	if not len(favs):
+		exit('Favourite list is empty')
 
-    if args.num > len(favs) - 1:
-        exit('Not a valid number')
+	if args.num > len(favs) - 1:
+		exit('Not a valid number')
 
-    with open(BASEPATH, 'r') as file_obj:
-        favourites: list[dict] = json.load(file_obj)
+	with open(BASEPATH, 'r') as file_obj:
+		favourites: list[dict] = json.load(file_obj)
 
-        updated = favourites[args.num]
-        previous_name = updated['name']
-        updated['name'] = args.name
+		updated = favourites[args.num]
+		previous_name = updated['name']
+		updated['name'] = args.name
 
-        logger.info(f'Updating {updated["name"]} with id {updated["id"]} to {args.name}')
+		logger.info(f'Updating {updated["name"]} with id {updated["id"]} to {args.name}')
 
-    with open(BASEPATH, 'w') as file_obj:
-        json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
+	with open(BASEPATH, 'w') as file_obj:
+		json.dump(favourites, file_obj, ensure_ascii=False, indent=4)
 
-    print(f'Updated {previous_name} with id {updated["id"]} to {args.name}')
+	print(f'Updated {previous_name} with id {updated["id"]} to {args.name}')

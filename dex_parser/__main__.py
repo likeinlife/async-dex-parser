@@ -2,9 +2,9 @@ from dex_parser import cli
 
 
 def main():
-    args = cli.parse_args()
-    args.func(args)
+	args = cli.parse_args()
+	args.func(args)
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+	main()

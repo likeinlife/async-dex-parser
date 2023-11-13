@@ -1,47 +1,25 @@
-__all__ = ['config']
-import logging
 import os
 from functools import cached_property
 from pathlib import Path
 
-from httpx import Timeout
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
-class Config:
-    NAME_MAX_LENGTH = 40  # the maximum length of the title, more will be cut offmax length of title name,
-    LOGS_MAX_SIZE = 256  # in bytes
-    ENABLE_STREAM_HANDLER = False  # print logs to console
+class Config(BaseSettings):
+	NAME_MAX_LENGTH: int = Field(40)  # the maximum length of the title
+	LOGS_MAX_SIZE: int = Field(256)  # in bytes
+	ENABLE_STREAM_HANDLER: int = Field(False)  # print logs to console
 
-    @property
-    def THREADS(self) -> int:
-        """Change threads count"""
-        if (var := os.getenv('THREADS')):
-            if self.LOGGING_LEVEL == 'DEBUG':
-                print(f'THREADS count = {int(var)}')
-            return int(var)
-        return 5
+	THREADS: int = Field(5)
+	TIMEOUT: int = Field(5)
+	LOGGING_LEVEL: str = Field('WARNING')
 
-    @property
-    def TIMEOUT(self) -> Timeout:
-        """Time to make connect with mangadex server. Set higher if your internet is slow"""
-        if (var := os.getenv('TIMEOUT')):
-            return Timeout(int(var))
-        return Timeout(30)
-
-    @property
-    def LOGGING_LEVEL(self):
-        if (var := os.getenv('LOGGING_LEVEL')):
-            return var
-        else:
-            return logging.INFO
-
-    @cached_property
-    def BASEPATH(self):
-        BASEPATH = Path(os.path.expanduser(r'~\Documents\dex'))
-        if not BASEPATH.exists():
-            BASEPATH.mkdir()
-
-        return BASEPATH
+	@cached_property
+	def BASEPATH(self) -> Path:
+		BASEPATH = Path(os.path.expanduser(r'~\Documents\dex'))
+		BASEPATH.mkdir(exist_ok=True, parents=True)
+		return BASEPATH
 
 
 config = Config()

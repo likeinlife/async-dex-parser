@@ -16,107 +16,108 @@ logger = get_logger(__name__)
 
 
 class Chapter(NamedTuple):
-    id: str
-    chapter: str
-    language: str
-    pages: int
+	id: str
+	chapter: str
+	language: str
+	pages: int
 
 
 class ParseTitle:
+	def __init__(self, title_id: str, language: str = 'en') -> None:
+		self.id = title_id
+		self.language = language
+		self.name: str = self.__getTitleName()
+		self.__chapters: tuple[Chapter, ...] = self.__parseJson(self.__getJsonWithChapters())
+		self.__filter_chapters()
 
-    def __init__(self, title_id: str, language: str = 'en') -> None:
-        self.id = title_id
-        self.language = language
-        self.name: str = self.__getTitleName()
-        self.__chapters: tuple[Chapter, ...] = self.__parseJson(self.__getJsonWithChapters())
-        self.__filter_chapters()
+	def __filter_chapters(self):
+		if self.language == 'any':
+			return
+		self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
 
-    def __filter_chapters(self):
-        if self.language == 'any':
-            return
-        self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
+	def Download(
+		self,
+		chapter_select_string: str,
+		directory: Path = Path(),
+		disable_creating_title_dir: bool = False,
+	):
+		"""Download chapters range
+		Args:
+		    chapter_range: `10-24, 12, ~13`
+		"""
+		logger.info(f'Downloading chapters range {chapter_select_string} from {self.name}')
 
-    def Download(
-            self,
-            chapter_select_string: str,
-            directory: Path = Path(),
-            disable_creating_title_dir: bool = False,
-    ):
-        """Download chapters range
-        Args:
-            chapter_range: `10-24, 12, ~13`
-        """
-        logger.info(f'Downloading chapters range {chapter_select_string} from {self.name}')
+		selected_chapters = get_chapter_selector(chapter_select_string)
+		directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
+		for chapter_info in self.__chapters:
+			if chapter_info.chapter in selected_chapters:
+				chapter = get_chapter(chapter_info.id)
+				chapter.downloadChapter(directory=directory_for_title)
 
-        selected_chapters = get_chapter_selector(chapter_select_string)
-        directory_for_title = self.__makeDirectory(directory, disable_creating_title_dir)
-        for chapter_info in self.__chapters:
-            if chapter_info.chapter in selected_chapters:
-                chapter = get_chapter(chapter_info.id)
-                chapter.downloadChapter(directory=directory_for_title)
+	def __getTitleName(self) -> str:
+		"""Get manga name"""
 
-    def __getTitleName(self) -> str:
-        """Get manga name"""
+		json_response = dex_api.title.TitleGetInfoAPI(
+			headers=headers.title_headers,
+			timeout=config.TIMEOUT,
+		).sendRequest(id=self.id)
 
-        json_response = dex_api.title.TitleGetInfoAPI(
-            headers=headers.title_headers,
-            timeout=config.TIMEOUT,
-        ).sendRequest(id=self.id)
+		name = jmespath.search('data.attributes.title.* | [0]', json_response)
+		logger.debug(f'Got name from {self.id}, {name}')
 
-        name = jmespath.search('data.attributes.title.* | [0]', json_response)
-        logger.debug(f'Got name from {self.id}, {name}')
+		return name
 
-        return name
+	def __getJsonWithChapters(self, offset: int = 0):
+		json_response = dex_api.title.TitleGetChaptersAPI(
+			headers=headers.title_headers,
+			timeout=config.TIMEOUT,
+		).sendRequest(
+			id=self.id,
+			offset=offset,
+			limit=500,
+		)
 
-    def __getJsonWithChapters(self, offset: int = 0):
+		content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
+		total, limit = json_response.get('total'), json_response.get('limit')
 
-        json_response = dex_api.title.TitleGetChaptersAPI(
-            headers=headers.title_headers,
-            timeout=config.TIMEOUT,
-        ).sendRequest(
-            id=self.id,
-            offset=offset,
-            limit=500,
-        )
+		if total > limit and offset + limit < total:
+			content.extend(self.__getJsonWithChapters(offset + limit))
 
-        content = jmespath.search('data[].{id: id, attrs: attributes}', json_response)
-        total, limit = json_response.get('total'), json_response.get('limit')
+		logger.debug(f'Got chapters from {self.id=}')
 
-        if total > limit and offset + limit < total:
-            content.extend(self.__getJsonWithChapters(offset + limit))
+		return content
 
-        logger.debug(f'Got chapters from {self.id=}')
+	@staticmethod
+	def __parseJson(json_response: dict) -> Tuple[Chapter, ...]:
+		chapters_data = jmespath.search(
+			'[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]',
+			json_response,
+		)
 
-        return content
+		def __make_chapter(chapter_info) -> Chapter:
+			return Chapter(*chapter_info)
 
-    @staticmethod
-    def __parseJson(json_response: dict) -> Tuple[Chapter, ...]:
-        chapters_data = jmespath.search('[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]', json_response)
+		chapters_list = tuple(map(__make_chapter, chapters_data))
 
-        def __make_chapter(chapter_info) -> Chapter:
-            return Chapter(*chapter_info)
+		return chapters_list
 
-        chapters_list = tuple(map(__make_chapter, chapters_data))
+	def __makeDirectory(self, directory: Path, disable_creating_title_dir: bool = False):
+		if disable_creating_title_dir:
+			directory_for_title = directory
+		else:
+			clean_title_name = clean_name(self.name)
+			short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
+			directory_for_title = directory / short_name
+		logger.info(f'Creating directory {directory_for_title}')
 
-        return chapters_list
+		if not directory_for_title.exists():
+			directory_for_title.mkdir()
+		logger.info(f'Directory for save: {directory_for_title}')
+		return directory_for_title
 
-    def __makeDirectory(self, directory: Path, disable_creating_title_dir: bool = False):
-        if disable_creating_title_dir:
-            directory_for_title = directory
-        else:
-            clean_title_name = clean_name(self.name)
-            short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
-            directory_for_title = directory / short_name
-        logger.info(f'Creating directory {directory_for_title}')
+	@property
+	def chapters(self):
+		return self.__chapters
 
-        if not directory_for_title.exists():
-            directory_for_title.mkdir()
-        logger.info(f'Directory for save: {directory_for_title}')
-        return directory_for_title
-
-    @property
-    def chapters(self):
-        return self.__chapters
-
-    def __repr__(self) -> str:
-        return f'{self.id}'
+	def __repr__(self) -> str:
+		return f'{self.id}'
