@@ -34,7 +34,7 @@ pip install .
 ```python
 python -m dex_parser --help
 ```
-  
+
 # Use cases
 ## Download chapters from title
   - `dex title c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - will show Sewayaki Kitsune manga information
@@ -55,6 +55,8 @@ python -m dex_parser --help
 
 # Env variables
 - THREADS (default - 5) - connection count at the same time. Recommended to set under 15
-- TIMEOUT (default - 30) - seconds to make connection with mangadex server to download image
+- TIMEOUT (default - 30) - seconds to make connection with mangadex server
 - LOGGING_LEVEL (default - logging.INFO)
-
+-	NAME_MAX_LENGTH: int = Field(40) - the maximum length of the title
+-	LOGS_MAX_SIZE (default - 256) - in bytes
+-	ENABLE_STREAM_HANDLER (default - False) - print logs to console
