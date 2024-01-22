@@ -15,7 +15,10 @@ Download latest release
 ```cmd
 git clone https://github.com/likeinlife/async-dex-parser.git
 ```
-2. Download `pyoxydizer` via pip, cargo, etc
+2. 
+```cmd
+poetry 
+```
 3. cd to `pyoxidizer_builder`, then type
 ```cmd
 pyoxidizer.exe build --release
@@ -35,24 +38,6 @@ pip install .
 ```python
 python -m dex_parser --help
 ```
-
-# Use cases
-## Download chapters from title
-  - `dex title c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - show title information
-  - `dex title Sewayaki Kitsune`
-  - `dex title Sewayaki Kitsune -f` - find manga and add it to favorite list
-  - `dex title Sewayaki Kitsune --mass` - download all available chapters on english language
-  - `dex title Sewayaki Kitsune -m -l any` - download all available chapters on any language
-
-## Download chapter from url/id
-  - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735` - download chapter
-  - `dex chapter ce7f8709-c27c-465d-bdd9-d9c0c99b3735 -n '91 chapter' -d './test'` - will download 91 chapter in folder `./test`
-
-## Favorite list
-  - `dex fav list` - show your favorite list
-  - `dex fav download` - download chapter from fav list
-  - `dex fav add "Sewayaki Kitsune" c26269c7-0f5d-4966-8cd5-b79acb86fb7a` - add Sewayaki Kitsune manga to your favorite list
-  - `dex fav del 1` - delete the first title in your list
 
 # Env variables
 - THREADS (default - 5) - connection count at the same time. Recommended to set under 15
