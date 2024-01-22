@@ -1,42 +1,36 @@
-[project]
+[tool.poetry]
 name = "dex_parser"
-version = "1.0.4"
-authors = [{name="likeinlife"}]
-description = "Async mangadex parser. Can parse one chapter, all chapter from title etc."
+version = "0.1.0"
+description = "Mangadex chapter parser"
+authors = ["likeinlife <likeinlife@outlook.com>"]
 readme = "README.md"
-requires-python = ">=3.10.3"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-"aiofiles >= 22.1.0",
-"jmespath >= 1.0.1",
-"tqdm >= 4.64.1",
-"tabulate >= 0.9.0",
-"httpx >= 0.23.3",
-"pydantic == 2.4.2" ,
-"pydantic-settings == 2.0.3",
-]
 
-[project.urls]
-"Homepage" = "https://github.com/likeinlife/async-dex-parser"
+[tool.poetry.group.dev]
+optional = true
 
-[tool.setuptools]
-py-modules = ["dex_parser"]
+[tool.poetry.dependencies]
+python = "^3.11"
+aiofiles = "^23.2.1"
+jmespath = "^1.0.1"
+tqdm = "^4.66.1"
+tabulate = "^0.9.0"
+httpx = "^0.26.0"
+pydantic = "^2.5.3"
+pydantic-settings = "^2.1.0"
+typer = "^0.9.0"
 
-[project.optional-dependencies]
-dev = [
-    "ruff==0.1.5",
-    "mypy==1.2.0",
-    "pre-commit==3.5.0",
-]
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.8.0"
+ruff = "^0.1.14"
+pre-commit = "^3.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
-plugins = [
-  "pydantic.mypy"
-]
-
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
 follow_imports = "silent"
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -56,7 +50,6 @@ select = ["F", "E", "W", "C", "I", "N", "S"]
 extend-select = ["D202",]
 ignore = ["W191", "E101", "S501"]
 
-
 [tool.ruff.format]
 quote-style = "single"
-indent-style = "tab"
+
