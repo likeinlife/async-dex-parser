@@ -35,7 +35,7 @@ class ParseChapter:
         base_url = json_response['baseUrl']
         ch_hash = json_response['chapter']['hash']
         image_urls = [
-            self.__get_url_from_image_name(
+            self._get_url_from_image_name(
                 base_url,
                 ch_hash,
                 image_name,
@@ -46,7 +46,7 @@ class ParseChapter:
         logger.debug(f'Got chapter({self._chapter_id}) pages')
         return image_urls
 
-    def __get_url_from_image_name(self, base_url: str, ch_hash: str, image_name: str) -> str:
+    def _get_url_from_image_name(self, base_url: str, ch_hash: str, image_name: str) -> str:
         return f'{base_url}/data/{ch_hash}/{image_name}'
 
     def _get_chapter_info(self) -> Chapter:
