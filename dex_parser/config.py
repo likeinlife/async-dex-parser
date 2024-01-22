@@ -18,7 +18,7 @@ class Config(BaseSettings):
 
     @cached_property
     def BASEPATH(self) -> Path:  # noqa
-        basepath = Path(os.path.expanduser(r'~\Documents\dex'))
+        basepath = Path(r'~\Documents\dex').expanduser()
         basepath.mkdir(exist_ok=True, parents=True)
         return basepath
 
