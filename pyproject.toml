@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "async-dex-parser"
+name = "dex_parser"
 version = "0.1.0"
 description = "Mangadex chapter parser"
 authors = ["likeinlife <likeinlife@outlook.com>"]
