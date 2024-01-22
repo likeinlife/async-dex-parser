@@ -20,7 +20,12 @@ logger = get_logger(__name__)
 
 
 class ImageDownloader(BaseImageDownloader):
-	def __init__(self, chapter: 'ParseChapter', directory: Path = Path(), folder_name: str = '') -> None:
+	def __init__(
+		self,
+		chapter: 'ParseChapter',
+		directory: Path | None = None,
+		folder_name: str | None = None,
+	) -> None:
 		self.chapter = chapter
 		self._path_to_dir = self._get_path(directory, folder_name)
 		self._create_dir()
@@ -41,7 +46,7 @@ class ImageDownloader(BaseImageDownloader):
 		return Path(folder_name)
 
 	def _create_dir(self) -> None:
-		self._path_to_dir.mkdir(exist_ok=True)
+		self._path_to_dir.mkdir(exist_ok=True, parents=True)
 
 	def _is_override(self, path_to_object: Path):
 		"""Check if files inside directory already exists."""

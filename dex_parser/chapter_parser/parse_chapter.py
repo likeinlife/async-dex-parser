@@ -68,7 +68,7 @@ class ParseChapter:
 		logger.debug('Got chapter info')
 		return Chapter(self._chapter_id, title_name, *parsed_json)
 
-	def __repr__(self) -> str:
+	def __str__(self) -> str:
 		headers = ('manga name', 'chapter name', 'id', 'pages')
 		manga_name = textwrap.shorten(self.chapter_info.manga_name, 30)
 		if self.chapter_info.chapter_name:

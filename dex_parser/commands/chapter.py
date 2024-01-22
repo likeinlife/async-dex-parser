@@ -1,13 +1,19 @@
-import argparse
+from pathlib import Path
+from typing import Annotated, Optional
 
-from dex_parser import chapter_parser, common
+import typer
+
+from dex_parser import chapter_parser, downloader
+
+router = typer.Typer(help='Chapters actions')
 
 
-class Commands:
-	@staticmethod
-	def entrypoint(args: argparse.Namespace):
-		chapter = chapter_parser.get_chapter_parser(args.id)
-		print(chapter)
-		download = input('download? y/n ')
-		if common.true_table.get(download):
-			chapter.download_chapter(common.get_path(args.directory), args.folder_name)
+@router.command()
+def download(
+	chapter_identification: str,
+	directory: Annotated[Optional[Path], typer.Option('--directory', '-d', help='Directory to save')] = None,
+	folder_name: Annotated[Optional[str], typer.Option('--folder-name', '-f', help='Folder name')] = None,
+):
+	chapter = chapter_parser.get_chapter_parser(chapter_identification)
+	typer.confirm('Download chapter?', abort=True)
+	downloader.ImageDownloader(chapter, directory=directory, folder_name=folder_name).run()

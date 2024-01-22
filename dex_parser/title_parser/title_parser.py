@@ -1,6 +1,6 @@
 import textwrap
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
 
 import jmespath  # type: ignore
 
@@ -21,13 +21,13 @@ class TitleParser:
 		self.id = title_id
 		self.language = language
 		self.name: str = self._get_title_name()
-		self.__chapters: tuple[TitleChapter, ...] = self._parse_json(self._get_json())
+		self.chapters = self._parse_json(self._get_json())
 		self._filter_chapters()
 
 	def download(
 		self,
 		chapter_select_string: str,
-		directory: Path = Path(),
+		directory: Path | None = None,
 		disable_creating_title_dir: bool = False,
 	):
 		"""
@@ -40,18 +40,15 @@ class TitleParser:
 
 		selected_chapters = get_chapter_selector(chapter_select_string)
 		directory_for_title = self._create_dir(directory, disable_creating_title_dir)
-		for chapter_info in self.__chapters:
+		for chapter_info in self.chapters:
 			if chapter_info.chapter in selected_chapters:
 				chapter = get_chapter_parser(chapter_info.id)
 				chapter.download_chapter(directory=directory_for_title)
 
-	def get_chapters(self):
-		return self.__chapters
-
 	def _filter_chapters(self):
 		if self.language == 'any':
 			return
-		self.__chapters = tuple(filter(lambda chapter: chapter.language == self.language, self.__chapters))
+		self.chapters = list(filter(lambda chapter: chapter.language == self.language, self.chapters))
 
 	def _get_title_name(self) -> str:
 		"""Get manga name."""
@@ -86,7 +83,7 @@ class TitleParser:
 		return content
 
 	@staticmethod
-	def _parse_json(json_response: dict[str, Any]) -> Tuple[TitleChapter, ...]:
+	def _parse_json(json_response: dict[str, Any]) -> list[TitleChapter]:
 		chapters_data = jmespath.search(
 			'[*].[id, attrs.chapter, attrs.translatedLanguage, attrs.pages]',
 			json_response,
@@ -95,21 +92,17 @@ class TitleParser:
 		def __make_chapter(chapter_info) -> TitleChapter:
 			return TitleChapter(*chapter_info)
 
-		chapters_list = tuple(map(__make_chapter, chapters_data))
+		chapters_list = list(map(__make_chapter, chapters_data))
 
 		return chapters_list
 
-	def _create_dir(self, directory: Path, disable_creating_title_dir: bool = False):
-		if disable_creating_title_dir:
-			directory_for_title = directory
-		else:
+	def _create_dir(self, directory: Path | None, disable_creating_title_dir: bool = False) -> Path:
+		directory_for_title = directory or Path()
+		if not disable_creating_title_dir:
 			clean_title_name = get_clean_path(self.name)
 			short_name = textwrap.shorten(clean_title_name, config.NAME_MAX_LENGTH, placeholder='')
-			directory_for_title = directory / short_name
-		logger.info(f'Creating directory {directory_for_title}')
-
-		if not directory_for_title.exists():
-			directory_for_title.mkdir()
+			directory_for_title = directory_for_title / short_name
+		directory_for_title.mkdir(exist_ok=True, parents=True)
 		logger.info(f'Directory for save: {directory_for_title}')
 		return directory_for_title
 
