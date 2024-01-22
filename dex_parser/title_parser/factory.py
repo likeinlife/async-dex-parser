@@ -7,8 +7,8 @@ from .title_parser import TitleParser
 
 
 def get_title_parser(identification: str, language: str):
-	if title_id := common.get_id_from_url(identification, 'title'):
-		return TitleParser(title_id, language)
-	elif re.match(common.id_pattern, identification):
-		return TitleParser(identification, language)
-	return TitleNameParser(identification)
+    if title_id := common.get_id_from_url(identification, 'title'):
+        return TitleParser(title_id, language)
+    elif re.match(common.id_pattern, identification):
+        return TitleParser(identification, language)
+    return TitleNameParser(identification)
