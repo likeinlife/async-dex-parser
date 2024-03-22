@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 router = typer.Typer(help='Title actions')
 
 
-@router.command(help='Download title chapters')
+@router.command('download', help='Download title chapters')
 def download(
     title_identification: Annotated[str, typer.Argument(help='Title url, id or name')],
     language: Annotated[str, typer.Option('--language', '-l', help='Language')] = 'en',

@@ -8,7 +8,7 @@ from dex_parser import chapter_parser, downloader
 router = typer.Typer(help='Chapters actions')
 
 
-@router.command()
+@router.command('download')
 def download(
     chapter_identification: str,
     directory: Annotated[Optional[Path], typer.Option('--directory', '-d', help='Directory to save')] = None,

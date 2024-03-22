@@ -16,7 +16,7 @@ FAVORITE_LIST_PATH = config.BASEPATH / 'favs.json'
 router = typer.Typer(help='Favorite list actions')
 
 
-@router.command()
+@router.command('add')
 def add(
     name: str,
     id: uuid.UUID,
@@ -24,17 +24,17 @@ def add(
     add_to_favorite_list(name, id)
 
 
-@router.command()
+@router.command('update')
 def update(number: int, new_name: str):
     update_favorite_list(number, new_name)
 
 
-@router.command(name='print')
+@router.command('print')
 def print_():
     print_favorite_list(read_favorite_list())
 
 
-@router.command()
+@router.command('download')
 def download(
     number: int,
     language: Annotated[str, typer.Option('--language', '-l', help='Language')] = 'en',
